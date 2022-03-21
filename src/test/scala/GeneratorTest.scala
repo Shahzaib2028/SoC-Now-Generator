@@ -7,6 +7,18 @@ import chiseltest.experimental.TestOptionBuilder._
 import org.scalatest.FreeSpec
 
 class GeneratorTest extends FreeSpec with ChiselScalatestTester {
+
+  import spray.json._
+  import DefaultJsonProtocol._
+  import sys.process._
+
+  "python3 peripheralScript.py" !
+
+  val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
+
+  val fileToJson = file.parseJson.convertTo[Map[String, JsValue]]
+  val config = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
+
   def getFile: Option[String] = {
     if (scalaTestContext.value.get.configMap.contains("memFile")) {
       Some(scalaTestContext.value.get.configMap("memFile").toString)
@@ -16,22 +28,9 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
   }
   "Generator Done" in {
     val programFile = getFile
-    test(new Generator(programFile)) {c =>
+    test(new Generator(programFile=programFile, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TL = config("tl"), WB = config("wb"), M = config("m"))).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
       c.clock.setTimeout(0)
-      // var count = 1
-      // while(count != 1000) {
-      //   //
-      //   // c.io.req.bits.addrRequest.poke(8.U)
-      //   // c.io.req.bits.isWrite.poke(0.B)
-      //   // c.io.req.valid.poke(1.B)
-      //   // c.io.rsp.ready.poke(1.B)
-      //   //
-      //     val mosi = c.io.spi_mosi.peek()
-      //     c.io.spi_miso.poke(mosi)
-      //     c.clock.step(1)
-      //     count += 1
-      // }
-      c.clock.step(1)
+      c.clock.step(8000)
     }
   }
 }

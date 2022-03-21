@@ -16,7 +16,7 @@ import jigsaw.peripherals.UART._
 
 // import scala.util.parsing.json._
 
-class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean = true, SPI:Boolean = true, TL:Boolean = true, WB:Boolean = false, M:Boolean = false) extends Module {
+class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean = false, SPI:Boolean = false, TL:Boolean = true, WB:Boolean = false, M:Boolean = false) extends Module {
   val io = IO(new Bundle {
     val spi_cs_n = Output(Bool())
     val spi_sclk = Output(Bool())
@@ -381,9 +381,11 @@ if (SPI & UART){
 
 import spray.json._
 import DefaultJsonProtocol._
+import sys.process._
 
 object GeneratorDriver extends App {
 
+  "python3 peripheralScript.py" !
 
   val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
 

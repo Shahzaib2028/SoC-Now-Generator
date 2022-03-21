@@ -47,9 +47,11 @@ def peripheralSwitch():
 	from xmlrpc.client import Boolean
 	file = open("src/main/scala/config.json", "r")
 	data = json.load(file)
+	print(data)
 	file.close()
 	uart = bool(data["uart"])
 	spi_flash = bool(data["spi_flash"])
+	print(spi_flash)
 	caravan_path = "caravan/src/main/scala/caravan/bus/common/PeripheralsMap.scala"
 	if not uart and not spi_flash:
 		print(first_comb)
