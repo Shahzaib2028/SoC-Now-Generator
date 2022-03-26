@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 def peripheralSwitch():
 	first_comb = """
 	package caravan.bus.common
