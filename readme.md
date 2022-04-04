@@ -6,7 +6,7 @@ This repo is sub-repo of [SoC-Now](https://github.com/merledu/SoC-Now) which pro
 ### Architecture
 | Module  | Purpose |
 | ------------- | ------------- |
+| [NucleusRV](https://github.com/merledu/caravan)  | Parametrized Configurable Core  |
 | [Caravan](https://github.com/merledu/caravan)  | Bus Interconnects  |
 | [Jigsaw](https://github.com/merledu/jigsaw)  | Devices / Peripherals  |
-| [NucleusRV](https://github.com/merledu/caravan)  | Parametrized Configurable Core  |
 | [CCache](https://github.com/shahzaibk23/ccache)  | Caches  |
