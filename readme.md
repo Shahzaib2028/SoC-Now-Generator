@@ -1,6 +1,8 @@
 # SoC Now Generator
 A mini SoC Generator based on CHISEL and Scala
 
+In depth details of Generator is [here](https://github.com/merledu/SoC-Now-Generator/blob/main/overview.md) .
+
 This repo is sub-repo of [SoC-Now](https://github.com/merledu/SoC-Now) which provides a Graphical Web Interface for the SoC Generator in this repo.
 
 ### Architecture
