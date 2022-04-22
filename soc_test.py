@@ -48,13 +48,13 @@ class SoC_Tester(TestCase):
                         if output == '' and process.poll() is not None:
                             break
                         if output:
-                            print(str(output))
+                            # print(str(output))
                             if "[info] All tests passed." in str(output):
-                                print("HURRAHHHH")
+                                print("TEST PASSED :)")
                                 self.assertTrue(True)
                                 break
                             if "TEST FAILED" in str(output):
-                                print("NONONNOO")
+                                print("TEST FAILES :(")
                                 self.assertTrue(False)
                                 break
 
