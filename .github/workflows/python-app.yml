@@ -20,4 +20,4 @@ jobs:
     steps:
       - name: Running all SoC Combinations
         run: |
-          python3 soc_tester.py
+          pytest -s
