@@ -5,8 +5,8 @@ class SoC_Tester(TestCase):
 
     def test_soc_combination(self):
         # assert True
-        # os.chdir("../../")
-
+        os.chdir("../../")
+        print(f"CURRENT DIR = {os.system('pwd')}")
         defaults = {"i": 1, "gpio": 1}
         extensions = {"m": 1, "f": 0, "c": 0}
         devices = {"spi": 0, "uart": 0, "timer": 0, "spi_flash": 1, "i2c": 0}
