@@ -5,7 +5,7 @@ class SoC_Tester(TestCase):
 
     def test_soc_combination(self):
         # assert True
-        os.chdir("../../")
+        # os.chdir("../../")
 
         defaults = {"i": 1, "gpio": 1}
         extensions = {"m": 1, "f": 0, "c": 0}
