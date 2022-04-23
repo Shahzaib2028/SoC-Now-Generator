@@ -32,6 +32,8 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+    - name: Make all SoC Combinations
+      run: python3 soc_test.py all
     - name: Run SBT tests
       run: ./sbt_runner.sh
    
