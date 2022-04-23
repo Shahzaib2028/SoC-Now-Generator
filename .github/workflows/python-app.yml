@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        submodules: 'true'
+        submodules: recursive
     # - name: Fetch Submodules
     #   run: git submodule update --init --recursive
     - name: Set up JDK 11
