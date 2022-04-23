@@ -13,53 +13,53 @@ class SoC_Tester(TestCase):
         bus = {"wb": 0, "tl": 0}
         total_combinations = 2**len(extensions.keys()) * 2**len(devices.keys()) * len(bus.keys())
         print(f"\n Total Combinations: {total_combinations}\n")
-        comb_count = 0
-        import itertools
-        from typing import final
-        device_combs = list(itertools.product([0, 1], repeat=len(devices.keys())))
-        extension_combs = list(itertools.product([0, 1], repeat=len(extensions.keys())))
-        bus_combs = [ [0]*len(bus.keys())  for i,v in enumerate(bus.keys())]
-        for i,v in enumerate(bus_combs):
-            v[i] = 1
+        # comb_count = 0
+        # import itertools
+        # from typing import final
+        # device_combs = list(itertools.product([0, 1], repeat=len(devices.keys())))
+        # extension_combs = list(itertools.product([0, 1], repeat=len(extensions.keys())))
+        # bus_combs = [ [0]*len(bus.keys())  for i,v in enumerate(bus.keys())]
+        # for i,v in enumerate(bus_combs):
+        #     v[i] = 1
 
-        for i,v in enumerate(bus_combs):
-            # current bus comb
-            final_dict = dict(zip(bus.keys(), v))
+        # for i,v in enumerate(bus_combs):
+        #     # current bus comb
+        #     final_dict = dict(zip(bus.keys(), v))
 
-            for j,w in enumerate(extension_combs):
-                # current ext comb
-                final_dict |= dict(zip(extensions.keys(), w))
+        #     for j,w in enumerate(extension_combs):
+        #         # current ext comb
+        #         final_dict |= dict(zip(extensions.keys(), w))
 
-                for k,x in enumerate(device_combs):
-                    # current dev comb
-                    final_dict |= dict(zip(devices.keys(), x))
+        #         for k,x in enumerate(device_combs):
+        #             # current dev comb
+        #             final_dict |= dict(zip(devices.keys(), x))
 
-                    final_dict |= defaults
-                    # attach code here
-                    comb_count+=1
-                    print(f"\nCurrent Combination #{comb_count} : {final_dict}\n")
-                    file = open("src/main/scala/config.json","w")
-                    json.dump(final_dict, file)
-                    file.close()
+        #             final_dict |= defaults
+        #             # attach code here
+        #             comb_count+=1
+        #             print(f"\nCurrent Combination #{comb_count} : {final_dict}\n")
+        #             file = open("src/main/scala/config.json","w")
+        #             json.dump(final_dict, file)
+        #             file.close()
 
-                    process = subprocess.Popen(["sbt","test"], stdout=subprocess.PIPE)
-                    while True:
-                        output = process.stdout.readline()
-                        if output == '' and process.poll() is not None:
-                            break
-                        if output:
-                            # print(str(output))
-                            if "[info] All tests passed." in str(output):
-                                print("TEST PASSED :)")
-                                self.assertTrue(True)
-                                break
-                            if "TEST FAILED" in str(output):
-                                print("TEST FAILES :(")
-                                self.assertTrue(False)
-                                break
-                    break
+        process = subprocess.Popen(["sbt","test"], stdout=subprocess.PIPE)
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
                 break
-            break
+            if output:
+                # print(str(output))
+                if "[info] All tests passed." in str(output):
+                    print("TEST PASSED :)")
+                    self.assertTrue(True)
+                    break
+                if "TEST FAILED" in str(output):
+                    print("TEST FAILES :(")
+                    self.assertTrue(False)
+                    break
+            #         break
+            #     break
+            # break
 
 
 
