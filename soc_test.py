@@ -25,19 +25,12 @@ class SoC_Tester(TestCase):
         for i,v in enumerate(bus_combs):
             # current bus comb
             final_dict = dict(zip(bus.keys(), v))
-            if comb_count == 3:
-                break
 
             for j,w in enumerate(extension_combs):
                 # current ext comb
                 final_dict |= dict(zip(extensions.keys(), w))
-                if comb_count == 3:
-                    break
 
                 for k,x in enumerate(device_combs):
-                    if comb_count == 3:
-                        break
-
                     # current dev comb
                     final_dict |= dict(zip(devices.keys(), x))
 
@@ -64,6 +57,9 @@ class SoC_Tester(TestCase):
                                 print("TEST FAILES :(")
                                 self.assertTrue(False)
                                 break
+                    break
+                break
+            break
 
 
 
