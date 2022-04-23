@@ -85,20 +85,16 @@ base = """
 	package caravan.bus.common
 	import chisel3._
 	import chisel3.experimental.ChiselEnum
-
-	object Peripherals extends ChiselEnum {
-	val DCCM = Value(0.U)
-	val GPIO = Value(1.U)
-	}"""
+	"""
 
 dccm = """
 	object Peripherals extends ChiselEnum {
 	val DCCM = Value(0.U)
 """
 closer = "}"
-file = open("src/main/scala/config.json")
-data = json.load(file)
-file.close()
+file1 = open("src/main/scala/config.json")
+data = json.load(file1)
+file1.close()
 
 main_str = base + dccm
 dev_count = 1
@@ -143,6 +139,6 @@ main_str += closer
 print(main_str)
 
 caravan_path = "caravan/src/main/scala/caravan/bus/common/PeripheralsMap.scala"
-file = open(caravan_path, "w")
-file.write(main_str)
-file.close()
+file2 = open(caravan_path, "w")
+file2.write(main_str)
+file2.close()

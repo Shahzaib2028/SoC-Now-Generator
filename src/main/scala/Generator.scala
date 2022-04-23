@@ -381,11 +381,11 @@ if (SPI & UART){
 
 import spray.json._
 import DefaultJsonProtocol._
-import sys.process._
+// import sys.process._
 
 object GeneratorDriver extends App {
 
-  "python3 peripheralScript.py" !
+  // "python3 peripheralScript.py" !
 
   val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
 

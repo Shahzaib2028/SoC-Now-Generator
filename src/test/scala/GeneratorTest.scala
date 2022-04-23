@@ -12,7 +12,7 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
   import DefaultJsonProtocol._
   import sys.process._
 
-  "python3 peripheralScript.py" !
+  // "python3 peripheralScript.py" !
 
   val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
 
