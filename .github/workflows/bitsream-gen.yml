@@ -25,7 +25,7 @@ jobs:
       run: python3 soc_test.py all
     - name: setup F4PGA/Symbiflow
       run: ./f4pga_setup.sh
-    - 
+    
    
     # - name: Install dependencies
     #   run: |
