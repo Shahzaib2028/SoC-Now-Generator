@@ -1528,819 +1528,6 @@ end // initial
 `endif
 `endif // SYNTHESIS
 endmodule
-module i2c_master(
-  input        clock,
-  input        reset,
-  input        io_start,
-  input  [6:0] io_addr,
-  input  [7:0] io_data,
-  input        io_i2c_sda_in,
-  output       io_i2c_sda,
-  output       io_i2c_scl,
-  output       io_ready,
-  output       io_i2c_intr
-);
-`ifdef RANDOMIZE_REG_INIT
-  reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
-  reg [31:0] _RAND_4;
-`endif // RANDOMIZE_REG_INIT
-  reg [7:0] state; // @[i2c_master.scala 26:24]
-  reg [14:0] count; // @[i2c_master.scala 27:24]
-  reg [6:0] saved_addr; // @[i2c_master.scala 28:29]
-  reg  i2c_scl_enable; // @[i2c_master.scala 30:33]
-  reg  intr_done; // @[i2c_master.scala 31:28]
-  wire  _GEN_0 = state == 8'h0 | state == 8'h1 | state == 8'h7 ? 1'h0 : 1'h1; // @[i2c_master.scala 47:87 i2c_master.scala 48:28 i2c_master.scala 50:29]
-  wire  _GEN_1 = reset ? 1'h0 : _GEN_0; // @[i2c_master.scala 44:22 i2c_master.scala 45:24]
-  wire  _T_7 = 8'h0 == state; // @[Conditional.scala 37:30]
-  wire [2:0] _GEN_2 = io_start ? 3'h1 : 3'h0; // @[i2c_master.scala 62:39 i2c_master.scala 63:27 i2c_master.scala 67:27]
-  wire  _T_9 = 8'h1 == state; // @[Conditional.scala 37:30]
-  wire  _T_10 = 8'h2 == state; // @[Conditional.scala 37:30]
-  wire [6:0] _io_i2c_sda_T = saved_addr >> count; // @[i2c_master.scala 83:41]
-  wire  _T_11 = count == 15'h0; // @[i2c_master.scala 86:28]
-  wire [14:0] _count_T_1 = count - 15'h1; // @[i2c_master.scala 89:36]
-  wire [2:0] _GEN_4 = count == 15'h0 ? 3'h3 : 3'h2; // @[i2c_master.scala 86:36 i2c_master.scala 87:27 i2c_master.scala 90:27]
-  wire [14:0] _GEN_5 = count == 15'h0 ? count : _count_T_1; // @[i2c_master.scala 86:36 i2c_master.scala 27:24 i2c_master.scala 89:27]
-  wire  _T_12 = 8'h3 == state; // @[Conditional.scala 37:30]
-  wire  _T_13 = 8'h4 == state; // @[Conditional.scala 37:30]
-  wire [2:0] _GEN_6 = ~io_i2c_sda_in ? 3'h5 : 3'h7; // @[i2c_master.scala 106:48 i2c_master.scala 107:31 i2c_master.scala 112:31]
-  wire [14:0] _GEN_7 = ~io_i2c_sda_in ? 15'h7 : count; // @[i2c_master.scala 106:48 i2c_master.scala 108:31 i2c_master.scala 27:24]
-  wire  _T_15 = 8'h5 == state; // @[Conditional.scala 37:30]
-  wire [7:0] _io_i2c_sda_T_2 = io_data >> count; // @[i2c_master.scala 121:38]
-  wire [2:0] _GEN_9 = _T_11 ? 3'h6 : 3'h5; // @[i2c_master.scala 124:36 i2c_master.scala 125:27 i2c_master.scala 128:27]
-  wire  _T_17 = 8'h6 == state; // @[Conditional.scala 37:30]
-  wire  _T_18 = 8'h7 == state; // @[Conditional.scala 37:30]
-  wire  _GEN_12 = _T_18 | intr_done; // @[Conditional.scala 39:67 i2c_master.scala 142:27 i2c_master.scala 31:28]
-  wire  _GEN_16 = _T_17 ? io_i2c_sda_in : 1'h1; // @[Conditional.scala 39:67 i2c_master.scala 134:28]
-  wire [2:0] _GEN_19 = _T_17 ? 3'h7 : 3'h0; // @[Conditional.scala 39:67 i2c_master.scala 137:23]
-  wire  _GEN_20 = _T_17 ? intr_done : _GEN_12; // @[Conditional.scala 39:67 i2c_master.scala 31:28]
-  wire  _GEN_21 = _T_15 ? _io_i2c_sda_T_2[0] : _GEN_16; // @[Conditional.scala 39:67 i2c_master.scala 121:28]
-  wire [2:0] _GEN_24 = _T_15 ? _GEN_9 : _GEN_19; // @[Conditional.scala 39:67]
-  wire [14:0] _GEN_25 = _T_15 ? _GEN_5 : count; // @[Conditional.scala 39:67 i2c_master.scala 27:24]
-  wire  _GEN_26 = _T_15 ? intr_done : _GEN_20; // @[Conditional.scala 39:67 i2c_master.scala 31:28]
-  wire  _GEN_27 = _T_13 ? io_i2c_sda_in : _GEN_21; // @[Conditional.scala 39:67 i2c_master.scala 105:32]
-  wire [2:0] _GEN_28 = _T_13 ? _GEN_6 : _GEN_24; // @[Conditional.scala 39:67]
-  wire [14:0] _GEN_29 = _T_13 ? _GEN_7 : _GEN_25; // @[Conditional.scala 39:67]
-  wire  _GEN_32 = _T_13 ? intr_done : _GEN_26; // @[Conditional.scala 39:67 i2c_master.scala 31:28]
-  wire  _GEN_33 = _T_12 ? 1'h0 : _GEN_27; // @[Conditional.scala 39:67 i2c_master.scala 96:28]
-  wire [2:0] _GEN_36 = _T_12 ? 3'h4 : _GEN_28; // @[Conditional.scala 39:67 i2c_master.scala 99:23]
-  wire [14:0] _GEN_37 = _T_12 ? count : _GEN_29; // @[Conditional.scala 39:67 i2c_master.scala 27:24]
-  wire  _GEN_38 = _T_12 ? intr_done : _GEN_32; // @[Conditional.scala 39:67 i2c_master.scala 31:28]
-  wire  _GEN_39 = _T_10 ? _io_i2c_sda_T[0] : _GEN_33; // @[Conditional.scala 39:67 i2c_master.scala 83:28]
-  wire [2:0] _GEN_42 = _T_10 ? _GEN_4 : _GEN_36; // @[Conditional.scala 39:67]
-  wire [14:0] _GEN_43 = _T_10 ? _GEN_5 : _GEN_37; // @[Conditional.scala 39:67]
-  wire  _GEN_44 = _T_10 ? intr_done : _GEN_38; // @[Conditional.scala 39:67 i2c_master.scala 31:28]
-  wire  _GEN_45 = _T_9 ? 1'h0 : _GEN_39; // @[Conditional.scala 39:67 i2c_master.scala 73:28]
-  wire [2:0] _GEN_50 = _T_9 ? 3'h2 : _GEN_42; // @[Conditional.scala 39:67 i2c_master.scala 78:23]
-  wire  _GEN_53 = _T_7 | _GEN_45; // @[Conditional.scala 40:58 i2c_master.scala 60:28]
-  wire [2:0] _GEN_55 = _T_7 ? _GEN_2 : _GEN_50; // @[Conditional.scala 40:58]
-  wire  _GEN_56 = _T_7 ? 1'h0 : _T_9; // @[Conditional.scala 40:58]
-  wire [2:0] _GEN_61 = reset ? 3'h0 : _GEN_55; // @[i2c_master.scala 54:22 i2c_master.scala 55:15]
-  assign io_i2c_sda = reset | _GEN_53; // @[i2c_master.scala 54:22 i2c_master.scala 56:20]
-  assign io_i2c_scl = ~i2c_scl_enable | ~clock; // @[i2c_master.scala 42:22]
-  assign io_ready = reset ? 1'h0 : _GEN_56; // @[i2c_master.scala 54:22 i2c_master.scala 36:14]
-  assign io_i2c_intr = intr_done; // @[i2c_master.scala 150:17]
-  always @(posedge clock) begin
-    if (reset) begin // @[i2c_master.scala 26:24]
-      state <= 8'h0; // @[i2c_master.scala 26:24]
-    end else begin
-      state <= {{5'd0}, _GEN_61};
-    end
-    if (reset) begin // @[i2c_master.scala 27:24]
-      count <= 15'h0; // @[i2c_master.scala 27:24]
-    end else if (!(reset)) begin // @[i2c_master.scala 54:22]
-      if (!(_T_7)) begin // @[Conditional.scala 40:58]
-        if (_T_9) begin // @[Conditional.scala 39:67]
-          count <= 15'h6; // @[i2c_master.scala 79:23]
-        end else begin
-          count <= _GEN_43;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_master.scala 28:29]
-      saved_addr <= 7'h0; // @[i2c_master.scala 28:29]
-    end else if (!(reset)) begin // @[i2c_master.scala 54:22]
-      if (!(_T_7)) begin // @[Conditional.scala 40:58]
-        if (_T_9) begin // @[Conditional.scala 39:67]
-          saved_addr <= io_addr; // @[i2c_master.scala 74:28]
-        end
-      end
-    end
-    i2c_scl_enable <= reset | _GEN_1; // @[i2c_master.scala 30:33 i2c_master.scala 30:33]
-    if (reset) begin // @[i2c_master.scala 31:28]
-      intr_done <= 1'h0; // @[i2c_master.scala 31:28]
-    end else if (!(reset)) begin // @[i2c_master.scala 54:22]
-      if (_T_7) begin // @[Conditional.scala 40:58]
-        intr_done <= 1'h0; // @[i2c_master.scala 61:27]
-      end else if (!(_T_9)) begin // @[Conditional.scala 39:67]
-        intr_done <= _GEN_44;
-      end
-    end
-  end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_REG_INIT
-  _RAND_0 = {1{`RANDOM}};
-  state = _RAND_0[7:0];
-  _RAND_1 = {1{`RANDOM}};
-  count = _RAND_1[14:0];
-  _RAND_2 = {1{`RANDOM}};
-  saved_addr = _RAND_2[6:0];
-  _RAND_3 = {1{`RANDOM}};
-  i2c_scl_enable = _RAND_3[0:0];
-  _RAND_4 = {1{`RANDOM}};
-  intr_done = _RAND_4[0:0];
-`endif // RANDOMIZE_REG_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
-endmodule
-module i2c_slave(
-  input        clock,
-  input        reset,
-  input        io_sda_in,
-  input        io_ready,
-  output       io_sda_out,
-  output [7:0] io_data_out
-);
-`ifdef RANDOMIZE_REG_INIT
-  reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
-  reg [31:0] _RAND_4;
-  reg [31:0] _RAND_5;
-  reg [31:0] _RAND_6;
-  reg [31:0] _RAND_7;
-  reg [31:0] _RAND_8;
-  reg [31:0] _RAND_9;
-  reg [31:0] _RAND_10;
-  reg [31:0] _RAND_11;
-  reg [31:0] _RAND_12;
-  reg [31:0] _RAND_13;
-  reg [31:0] _RAND_14;
-  reg [31:0] _RAND_15;
-  reg [31:0] _RAND_16;
-  reg [31:0] _RAND_17;
-  reg [31:0] _RAND_18;
-`endif // RANDOMIZE_REG_INIT
-  reg [7:0] count; // @[i2c_slave.scala 32:20]
-  reg [7:0] rx_state; // @[i2c_slave.scala 33:23]
-  reg  addr_bit1; // @[i2c_slave.scala 40:24]
-  reg  addr_bit2; // @[i2c_slave.scala 41:24]
-  reg  addr_bit3; // @[i2c_slave.scala 42:24]
-  reg  addr_bit4; // @[i2c_slave.scala 43:24]
-  reg  addr_bit5; // @[i2c_slave.scala 44:24]
-  reg  addr_bit6; // @[i2c_slave.scala 45:24]
-  reg  addr_bit7; // @[i2c_slave.scala 46:24]
-  reg [6:0] complete_addr; // @[i2c_slave.scala 47:28]
-  reg  data_bit1; // @[i2c_slave.scala 49:24]
-  reg  data_bit2; // @[i2c_slave.scala 50:24]
-  reg  data_bit3; // @[i2c_slave.scala 51:24]
-  reg  data_bit4; // @[i2c_slave.scala 52:24]
-  reg  data_bit5; // @[i2c_slave.scala 53:24]
-  reg  data_bit6; // @[i2c_slave.scala 54:24]
-  reg  data_bit7; // @[i2c_slave.scala 55:24]
-  reg  data_bit8; // @[i2c_slave.scala 56:24]
-  reg [7:0] data; // @[i2c_slave.scala 57:19]
-  wire  _T = 8'h0 == rx_state; // @[Conditional.scala 37:30]
-  wire [2:0] _GEN_0 = io_ready ? 3'h1 : 3'h0; // @[i2c_slave.scala 64:23 i2c_slave.scala 66:22 i2c_slave.scala 69:22]
-  wire  _T_1 = 8'h1 == rx_state; // @[Conditional.scala 37:30]
-  wire [7:0] _count_T_1 = count + 8'h1; // @[i2c_slave.scala 79:28]
-  wire  _GEN_1 = rx_state == 8'h1 & count == 8'h1 ? io_sda_in : addr_bit1; // @[i2c_slave.scala 75:52 i2c_slave.scala 76:23 i2c_slave.scala 40:24]
-  wire [2:0] _GEN_3 = rx_state == 8'h1 & count == 8'h1 ? 3'h0 : 3'h1; // @[i2c_slave.scala 75:52 i2c_slave.scala 35:10 i2c_slave.scala 80:22]
-  wire  _GEN_4 = count == 8'h2 ? io_sda_in : addr_bit2; // @[i2c_slave.scala 84:28 i2c_slave.scala 85:23 i2c_slave.scala 41:24]
-  wire [2:0] _GEN_6 = count == 8'h2 ? _GEN_3 : 3'h1; // @[i2c_slave.scala 84:28 i2c_slave.scala 88:22]
-  wire  _GEN_7 = count == 8'h3 ? io_sda_in : addr_bit3; // @[i2c_slave.scala 92:28 i2c_slave.scala 93:23 i2c_slave.scala 42:24]
-  wire [2:0] _GEN_8 = count == 8'h3 ? _GEN_6 : 3'h1; // @[i2c_slave.scala 92:28 i2c_slave.scala 95:22]
-  wire  _GEN_10 = count == 8'h4 ? io_sda_in : addr_bit4; // @[i2c_slave.scala 100:28 i2c_slave.scala 101:23 i2c_slave.scala 43:24]
-  wire [2:0] _GEN_11 = count == 8'h4 ? _GEN_8 : 3'h1; // @[i2c_slave.scala 100:28 i2c_slave.scala 103:22]
-  wire  _GEN_13 = count == 8'h5 ? io_sda_in : addr_bit5; // @[i2c_slave.scala 108:28 i2c_slave.scala 109:23 i2c_slave.scala 44:24]
-  wire [2:0] _GEN_14 = count == 8'h5 ? _GEN_11 : 3'h1; // @[i2c_slave.scala 108:28 i2c_slave.scala 111:22]
-  wire  _GEN_16 = count == 8'h6 ? io_sda_in : addr_bit6; // @[i2c_slave.scala 116:28 i2c_slave.scala 117:23 i2c_slave.scala 45:24]
-  wire [2:0] _GEN_17 = count == 8'h6 ? _GEN_14 : 3'h1; // @[i2c_slave.scala 116:28 i2c_slave.scala 119:22]
-  wire  _GEN_19 = count == 8'h7 ? io_sda_in : addr_bit7; // @[i2c_slave.scala 125:28 i2c_slave.scala 126:23 i2c_slave.scala 46:24]
-  wire [2:0] _GEN_20 = count == 8'h7 ? _GEN_17 : 3'h1; // @[i2c_slave.scala 125:28 i2c_slave.scala 128:22]
-  wire [6:0] _complete_addr_T = {addr_bit1,addr_bit2,addr_bit3,addr_bit4,addr_bit5,addr_bit6,addr_bit7}; // @[Cat.scala 30:58]
-  wire [2:0] _GEN_24 = count < 8'h8 ? _GEN_20 : 3'h2; // @[i2c_slave.scala 74:26 i2c_slave.scala 137:22]
-  wire  _T_12 = 8'h2 == rx_state; // @[Conditional.scala 37:30]
-  wire  _GEN_33 = complete_addr == 7'h63 ? 1'h0 : 1'h1; // @[i2c_slave.scala 144:47 i2c_slave.scala 145:24 i2c_slave.scala 148:24]
-  wire [2:0] _GEN_34 = complete_addr == 7'h63 ? 3'h3 : 3'h4; // @[i2c_slave.scala 144:47 i2c_slave.scala 146:22 i2c_slave.scala 149:22]
-  wire  _T_14 = 8'h3 == rx_state; // @[Conditional.scala 37:30]
-  wire  _GEN_35 = rx_state == 8'h3 & count == 8'h8 ? io_sda_in : data_bit1; // @[i2c_slave.scala 158:52 i2c_slave.scala 159:23 i2c_slave.scala 49:24]
-  wire [2:0] _GEN_37 = rx_state == 8'h3 & count == 8'h8 ? 3'h0 : 3'h3; // @[i2c_slave.scala 158:52 i2c_slave.scala 35:10 i2c_slave.scala 163:22]
-  wire  _GEN_38 = count == 8'h9 ? io_sda_in : data_bit2; // @[i2c_slave.scala 166:28 i2c_slave.scala 167:23 i2c_slave.scala 50:24]
-  wire [2:0] _GEN_40 = count == 8'h9 ? _GEN_37 : 3'h3; // @[i2c_slave.scala 166:28 i2c_slave.scala 171:22]
-  wire  _GEN_41 = count == 8'ha ? io_sda_in : data_bit3; // @[i2c_slave.scala 174:29 i2c_slave.scala 175:23 i2c_slave.scala 51:24]
-  wire [2:0] _GEN_43 = count == 8'ha ? _GEN_40 : 3'h3; // @[i2c_slave.scala 174:29 i2c_slave.scala 179:22]
-  wire  _GEN_44 = count == 8'hb ? io_sda_in : data_bit4; // @[i2c_slave.scala 182:29 i2c_slave.scala 183:23 i2c_slave.scala 52:24]
-  wire [2:0] _GEN_46 = count == 8'hb ? _GEN_43 : 3'h3; // @[i2c_slave.scala 182:29 i2c_slave.scala 187:22]
-  wire  _GEN_47 = count == 8'hc ? io_sda_in : data_bit5; // @[i2c_slave.scala 190:29 i2c_slave.scala 191:23 i2c_slave.scala 53:24]
-  wire [2:0] _GEN_49 = count == 8'hc ? _GEN_46 : 3'h3; // @[i2c_slave.scala 190:29 i2c_slave.scala 195:22]
-  wire  _GEN_50 = count == 8'hd ? io_sda_in : data_bit6; // @[i2c_slave.scala 198:29 i2c_slave.scala 199:23 i2c_slave.scala 54:24]
-  wire [2:0] _GEN_52 = count == 8'hd ? _GEN_49 : 3'h3; // @[i2c_slave.scala 198:29 i2c_slave.scala 203:22]
-  wire  _GEN_53 = count == 8'he ? io_sda_in : data_bit7; // @[i2c_slave.scala 206:29 i2c_slave.scala 207:23 i2c_slave.scala 55:24]
-  wire [2:0] _GEN_55 = count == 8'he ? _GEN_52 : 3'h3; // @[i2c_slave.scala 206:29 i2c_slave.scala 211:22]
-  wire  _GEN_56 = count == 8'hf ? io_sda_in : data_bit8; // @[i2c_slave.scala 214:29 i2c_slave.scala 215:23 i2c_slave.scala 56:24]
-  wire [2:0] _GEN_58 = count == 8'hf ? _GEN_55 : 3'h3; // @[i2c_slave.scala 214:29 i2c_slave.scala 219:22]
-  wire [7:0] _data_T = {data_bit1,data_bit2,data_bit3,data_bit4,data_bit5,data_bit6,data_bit7,data_bit8}; // @[Cat.scala 30:58]
-  wire  _GEN_59 = count < 8'h10 ? _GEN_35 : data_bit1; // @[i2c_slave.scala 156:27 i2c_slave.scala 49:24]
-  wire [7:0] _GEN_60 = count < 8'h10 ? _count_T_1 : count; // @[i2c_slave.scala 156:27 i2c_slave.scala 222:15 i2c_slave.scala 32:20]
-  wire [2:0] _GEN_61 = count < 8'h10 ? _GEN_58 : 3'h4; // @[i2c_slave.scala 156:27 i2c_slave.scala 227:22]
-  wire  _GEN_62 = count < 8'h10 ? _GEN_38 : data_bit2; // @[i2c_slave.scala 156:27 i2c_slave.scala 50:24]
-  wire  _GEN_63 = count < 8'h10 ? _GEN_41 : data_bit3; // @[i2c_slave.scala 156:27 i2c_slave.scala 51:24]
-  wire  _GEN_64 = count < 8'h10 ? _GEN_44 : data_bit4; // @[i2c_slave.scala 156:27 i2c_slave.scala 52:24]
-  wire  _GEN_65 = count < 8'h10 ? _GEN_47 : data_bit5; // @[i2c_slave.scala 156:27 i2c_slave.scala 53:24]
-  wire  _GEN_66 = count < 8'h10 ? _GEN_50 : data_bit6; // @[i2c_slave.scala 156:27 i2c_slave.scala 54:24]
-  wire  _GEN_67 = count < 8'h10 ? _GEN_53 : data_bit7; // @[i2c_slave.scala 156:27 i2c_slave.scala 55:24]
-  wire  _GEN_68 = count < 8'h10 ? _GEN_56 : data_bit8; // @[i2c_slave.scala 156:27 i2c_slave.scala 56:24]
-  wire [7:0] _GEN_69 = count < 8'h10 ? data : _data_T; // @[i2c_slave.scala 156:27 i2c_slave.scala 57:19 i2c_slave.scala 225:18]
-  wire  _T_26 = 8'h4 == rx_state; // @[Conditional.scala 37:30]
-  wire [7:0] _GEN_71 = _T_26 ? 8'h0 : count; // @[Conditional.scala 39:67 i2c_slave.scala 235:15 i2c_slave.scala 32:20]
-  wire  _GEN_73 = _T_14 ? _GEN_59 : data_bit1; // @[Conditional.scala 39:67 i2c_slave.scala 49:24]
-  wire [7:0] _GEN_74 = _T_14 ? _GEN_60 : _GEN_71; // @[Conditional.scala 39:67]
-  wire [2:0] _GEN_75 = _T_14 ? _GEN_61 : 3'h0; // @[Conditional.scala 39:67]
-  wire  _GEN_76 = _T_14 ? _GEN_62 : data_bit2; // @[Conditional.scala 39:67 i2c_slave.scala 50:24]
-  wire  _GEN_77 = _T_14 ? _GEN_63 : data_bit3; // @[Conditional.scala 39:67 i2c_slave.scala 51:24]
-  wire  _GEN_78 = _T_14 ? _GEN_64 : data_bit4; // @[Conditional.scala 39:67 i2c_slave.scala 52:24]
-  wire  _GEN_79 = _T_14 ? _GEN_65 : data_bit5; // @[Conditional.scala 39:67 i2c_slave.scala 53:24]
-  wire  _GEN_80 = _T_14 ? _GEN_66 : data_bit6; // @[Conditional.scala 39:67 i2c_slave.scala 54:24]
-  wire  _GEN_81 = _T_14 ? _GEN_67 : data_bit7; // @[Conditional.scala 39:67 i2c_slave.scala 55:24]
-  wire  _GEN_82 = _T_14 ? _GEN_68 : data_bit8; // @[Conditional.scala 39:67 i2c_slave.scala 56:24]
-  wire [7:0] _GEN_83 = _T_14 ? _GEN_69 : data; // @[Conditional.scala 39:67 i2c_slave.scala 57:19]
-  wire [2:0] _GEN_86 = _T_12 ? _GEN_34 : _GEN_75; // @[Conditional.scala 39:67]
-  wire [2:0] _GEN_99 = _T_1 ? _GEN_24 : _GEN_86; // @[Conditional.scala 39:67]
-  wire  _GEN_108 = _T_1 ? 1'h0 : _T_12 & _GEN_33; // @[Conditional.scala 39:67 i2c_slave.scala 37:12]
-  wire [2:0] _GEN_117 = _T ? _GEN_0 : _GEN_99; // @[Conditional.scala 40:58]
-  assign io_sda_out = _T ? 1'h0 : _GEN_108; // @[Conditional.scala 40:58 i2c_slave.scala 37:12]
-  assign io_data_out = data; // @[i2c_slave.scala 244:13]
-  always @(posedge clock) begin
-    if (reset) begin // @[i2c_slave.scala 32:20]
-      count <= 8'h1; // @[i2c_slave.scala 32:20]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          count <= _count_T_1; // @[i2c_slave.scala 132:15]
-        end
-      end else if (!(_T_12)) begin // @[Conditional.scala 39:67]
-        count <= _GEN_74;
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 33:23]
-      rx_state <= 8'h0; // @[i2c_slave.scala 33:23]
-    end else begin
-      rx_state <= {{5'd0}, _GEN_117};
-    end
-    if (reset) begin // @[i2c_slave.scala 40:24]
-      addr_bit1 <= 1'h0; // @[i2c_slave.scala 40:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit1 <= _GEN_1;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 41:24]
-      addr_bit2 <= 1'h0; // @[i2c_slave.scala 41:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit2 <= _GEN_4;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 42:24]
-      addr_bit3 <= 1'h0; // @[i2c_slave.scala 42:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit3 <= _GEN_7;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 43:24]
-      addr_bit4 <= 1'h0; // @[i2c_slave.scala 43:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit4 <= _GEN_10;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 44:24]
-      addr_bit5 <= 1'h0; // @[i2c_slave.scala 44:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit5 <= _GEN_13;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 45:24]
-      addr_bit6 <= 1'h0; // @[i2c_slave.scala 45:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit6 <= _GEN_16;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 46:24]
-      addr_bit7 <= 1'h0; // @[i2c_slave.scala 46:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (count < 8'h8) begin // @[i2c_slave.scala 74:26]
-          addr_bit7 <= _GEN_19;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 47:28]
-      complete_addr <= 7'h0; // @[i2c_slave.scala 47:28]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (!(count < 8'h8)) begin // @[i2c_slave.scala 74:26]
-          complete_addr <= _complete_addr_T; // @[i2c_slave.scala 135:27]
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 49:24]
-      data_bit1 <= 1'h0; // @[i2c_slave.scala 49:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit1 <= _GEN_73;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 50:24]
-      data_bit2 <= 1'h0; // @[i2c_slave.scala 50:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit2 <= _GEN_76;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 51:24]
-      data_bit3 <= 1'h0; // @[i2c_slave.scala 51:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit3 <= _GEN_77;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 52:24]
-      data_bit4 <= 1'h0; // @[i2c_slave.scala 52:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit4 <= _GEN_78;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 53:24]
-      data_bit5 <= 1'h0; // @[i2c_slave.scala 53:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit5 <= _GEN_79;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 54:24]
-      data_bit6 <= 1'h0; // @[i2c_slave.scala 54:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit6 <= _GEN_80;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 55:24]
-      data_bit7 <= 1'h0; // @[i2c_slave.scala 55:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit7 <= _GEN_81;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 56:24]
-      data_bit8 <= 1'h0; // @[i2c_slave.scala 56:24]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (!(_T_1)) begin // @[Conditional.scala 39:67]
-        if (!(_T_12)) begin // @[Conditional.scala 39:67]
-          data_bit8 <= _GEN_82;
-        end
-      end
-    end
-    if (reset) begin // @[i2c_slave.scala 57:19]
-      data <= 8'h0; // @[i2c_slave.scala 57:19]
-    end else if (!(_T)) begin // @[Conditional.scala 40:58]
-      if (_T_1) begin // @[Conditional.scala 39:67]
-        if (!(count < 8'h8)) begin // @[i2c_slave.scala 74:26]
-          data <= 8'h0; // @[i2c_slave.scala 136:18]
-        end
-      end else if (!(_T_12)) begin // @[Conditional.scala 39:67]
-        data <= _GEN_83;
-      end
-    end
-  end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_REG_INIT
-  _RAND_0 = {1{`RANDOM}};
-  count = _RAND_0[7:0];
-  _RAND_1 = {1{`RANDOM}};
-  rx_state = _RAND_1[7:0];
-  _RAND_2 = {1{`RANDOM}};
-  addr_bit1 = _RAND_2[0:0];
-  _RAND_3 = {1{`RANDOM}};
-  addr_bit2 = _RAND_3[0:0];
-  _RAND_4 = {1{`RANDOM}};
-  addr_bit3 = _RAND_4[0:0];
-  _RAND_5 = {1{`RANDOM}};
-  addr_bit4 = _RAND_5[0:0];
-  _RAND_6 = {1{`RANDOM}};
-  addr_bit5 = _RAND_6[0:0];
-  _RAND_7 = {1{`RANDOM}};
-  addr_bit6 = _RAND_7[0:0];
-  _RAND_8 = {1{`RANDOM}};
-  addr_bit7 = _RAND_8[0:0];
-  _RAND_9 = {1{`RANDOM}};
-  complete_addr = _RAND_9[6:0];
-  _RAND_10 = {1{`RANDOM}};
-  data_bit1 = _RAND_10[0:0];
-  _RAND_11 = {1{`RANDOM}};
-  data_bit2 = _RAND_11[0:0];
-  _RAND_12 = {1{`RANDOM}};
-  data_bit3 = _RAND_12[0:0];
-  _RAND_13 = {1{`RANDOM}};
-  data_bit4 = _RAND_13[0:0];
-  _RAND_14 = {1{`RANDOM}};
-  data_bit5 = _RAND_14[0:0];
-  _RAND_15 = {1{`RANDOM}};
-  data_bit6 = _RAND_15[0:0];
-  _RAND_16 = {1{`RANDOM}};
-  data_bit7 = _RAND_16[0:0];
-  _RAND_17 = {1{`RANDOM}};
-  data_bit8 = _RAND_17[0:0];
-  _RAND_18 = {1{`RANDOM}};
-  data = _RAND_18[7:0];
-`endif // RANDOMIZE_REG_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
-endmodule
-module I2C_Top(
-  input         clock,
-  input         reset,
-  input  [31:0] io_wdata,
-  input  [6:0]  io_addr,
-  input         io_ren,
-  input         io_we,
-  output        io_sda,
-  output        io_scl,
-  output [7:0]  io_data_out,
-  output        io_intr
-);
-`ifdef RANDOMIZE_REG_INIT
-  reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-`endif // RANDOMIZE_REG_INIT
-  wire  i2c_master_clock; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_reset; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_start; // @[I2C_Top.scala 63:28]
-  wire [6:0] i2c_master_io_addr; // @[I2C_Top.scala 63:28]
-  wire [7:0] i2c_master_io_data; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_i2c_sda_in; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_i2c_sda; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_i2c_scl; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_ready; // @[I2C_Top.scala 63:28]
-  wire  i2c_master_io_i2c_intr; // @[I2C_Top.scala 63:28]
-  wire  i2c_slave_clock; // @[I2C_Top.scala 75:27]
-  wire  i2c_slave_reset; // @[I2C_Top.scala 75:27]
-  wire  i2c_slave_io_sda_in; // @[I2C_Top.scala 75:27]
-  wire  i2c_slave_io_ready; // @[I2C_Top.scala 75:27]
-  wire  i2c_slave_io_sda_out; // @[I2C_Top.scala 75:27]
-  wire [7:0] i2c_slave_io_data_out; // @[I2C_Top.scala 75:27]
-  reg  addr_start_bit; // @[I2C_Top.scala 32:33]
-  reg [6:0] addr_slave_addr; // @[I2C_Top.scala 33:34]
-  reg [7:0] addr_data; // @[I2C_Top.scala 34:28]
-  wire  _GEN_1 = io_addr == 7'h8 & addr_start_bit; // @[I2C_Top.scala 48:48 I2C_Top.scala 32:33 I2C_Top.scala 55:24]
-  wire [6:0] _GEN_2 = io_addr == 7'h8 ? addr_slave_addr : 7'h0; // @[I2C_Top.scala 48:48 I2C_Top.scala 33:34 I2C_Top.scala 56:25]
-  wire [7:0] _GEN_3 = io_addr == 7'h8 ? addr_data : 8'h0; // @[I2C_Top.scala 48:48 I2C_Top.scala 34:28 I2C_Top.scala 57:19]
-  wire [7:0] _GEN_4 = io_addr == 7'h10 ? io_wdata[7:0] : _GEN_3; // @[I2C_Top.scala 46:38 I2C_Top.scala 47:19]
-  wire  _GEN_6 = io_addr == 7'h10 ? addr_start_bit : _GEN_1; // @[I2C_Top.scala 46:38 I2C_Top.scala 32:33]
-  wire [6:0] _GEN_7 = io_addr == 7'h10 ? addr_slave_addr : _GEN_2; // @[I2C_Top.scala 46:38 I2C_Top.scala 33:34]
-  i2c_master i2c_master ( // @[I2C_Top.scala 63:28]
-    .clock(i2c_master_clock),
-    .reset(i2c_master_reset),
-    .io_start(i2c_master_io_start),
-    .io_addr(i2c_master_io_addr),
-    .io_data(i2c_master_io_data),
-    .io_i2c_sda_in(i2c_master_io_i2c_sda_in),
-    .io_i2c_sda(i2c_master_io_i2c_sda),
-    .io_i2c_scl(i2c_master_io_i2c_scl),
-    .io_ready(i2c_master_io_ready),
-    .io_i2c_intr(i2c_master_io_i2c_intr)
-  );
-  i2c_slave i2c_slave ( // @[I2C_Top.scala 75:27]
-    .clock(i2c_slave_clock),
-    .reset(i2c_slave_reset),
-    .io_sda_in(i2c_slave_io_sda_in),
-    .io_ready(i2c_slave_io_ready),
-    .io_sda_out(i2c_slave_io_sda_out),
-    .io_data_out(i2c_slave_io_data_out)
-  );
-  assign io_sda = i2c_master_io_i2c_sda; // @[I2C_Top.scala 68:12]
-  assign io_scl = i2c_master_io_i2c_scl; // @[I2C_Top.scala 69:12]
-  assign io_data_out = i2c_slave_io_data_out; // @[I2C_Top.scala 81:17]
-  assign io_intr = i2c_master_io_i2c_intr; // @[I2C_Top.scala 70:13]
-  assign i2c_master_clock = clock;
-  assign i2c_master_reset = reset;
-  assign i2c_master_io_start = addr_start_bit; // @[I2C_Top.scala 64:25]
-  assign i2c_master_io_addr = addr_slave_addr; // @[I2C_Top.scala 65:24]
-  assign i2c_master_io_data = addr_data; // @[I2C_Top.scala 66:24]
-  assign i2c_master_io_i2c_sda_in = i2c_slave_io_sda_out; // @[I2C_Top.scala 80:30]
-  assign i2c_slave_clock = clock;
-  assign i2c_slave_reset = reset;
-  assign i2c_slave_io_sda_in = i2c_master_io_i2c_sda; // @[I2C_Top.scala 76:25]
-  assign i2c_slave_io_ready = i2c_master_io_ready; // @[I2C_Top.scala 77:24]
-  always @(posedge clock) begin
-    if (reset) begin // @[I2C_Top.scala 32:33]
-      addr_start_bit <= 1'h0; // @[I2C_Top.scala 32:33]
-    end else if (~io_ren & io_we) begin // @[I2C_Top.scala 41:29]
-      if (io_addr == 7'h0) begin // @[I2C_Top.scala 42:37]
-        addr_start_bit <= io_wdata[0]; // @[I2C_Top.scala 43:24]
-      end else if (!(io_addr == 7'h4)) begin // @[I2C_Top.scala 44:44]
-        addr_start_bit <= _GEN_6;
-      end
-    end
-    if (reset) begin // @[I2C_Top.scala 33:34]
-      addr_slave_addr <= 7'h0; // @[I2C_Top.scala 33:34]
-    end else if (~io_ren & io_we) begin // @[I2C_Top.scala 41:29]
-      if (!(io_addr == 7'h0)) begin // @[I2C_Top.scala 42:37]
-        if (io_addr == 7'h4) begin // @[I2C_Top.scala 44:44]
-          addr_slave_addr <= io_wdata[6:0]; // @[I2C_Top.scala 45:25]
-        end else begin
-          addr_slave_addr <= _GEN_7;
-        end
-      end
-    end
-    if (reset) begin // @[I2C_Top.scala 34:28]
-      addr_data <= 8'h0; // @[I2C_Top.scala 34:28]
-    end else if (~io_ren & io_we) begin // @[I2C_Top.scala 41:29]
-      if (!(io_addr == 7'h0)) begin // @[I2C_Top.scala 42:37]
-        if (!(io_addr == 7'h4)) begin // @[I2C_Top.scala 44:44]
-          addr_data <= _GEN_4;
-        end
-      end
-    end
-  end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_REG_INIT
-  _RAND_0 = {1{`RANDOM}};
-  addr_start_bit = _RAND_0[0:0];
-  _RAND_1 = {1{`RANDOM}};
-  addr_slave_addr = _RAND_1[6:0];
-  _RAND_2 = {1{`RANDOM}};
-  addr_data = _RAND_2[7:0];
-`endif // RANDOMIZE_REG_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
-endmodule
-module i2c(
-  input         clock,
-  input         reset,
-  output        io_request_ready,
-  input         io_request_valid,
-  input  [31:0] io_request_bits_addrRequest,
-  input  [31:0] io_request_bits_dataRequest,
-  input         io_request_bits_isWrite,
-  output        io_response_valid,
-  output [31:0] io_response_bits_dataResponse,
-  output        io_response_bits_error,
-  output        io_cio_i2c_sda,
-  output        io_cio_i2c_scl,
-  output        io_cio_i2c_intr
-);
-`ifdef RANDOMIZE_REG_INIT
-  reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-`endif // RANDOMIZE_REG_INIT
-  wire  i2c_top_clock; // @[i2c.scala 20:26]
-  wire  i2c_top_reset; // @[i2c.scala 20:26]
-  wire [31:0] i2c_top_io_wdata; // @[i2c.scala 20:26]
-  wire [6:0] i2c_top_io_addr; // @[i2c.scala 20:26]
-  wire  i2c_top_io_ren; // @[i2c.scala 20:26]
-  wire  i2c_top_io_we; // @[i2c.scala 20:26]
-  wire  i2c_top_io_sda; // @[i2c.scala 20:26]
-  wire  i2c_top_io_scl; // @[i2c.scala 20:26]
-  wire [7:0] i2c_top_io_data_out; // @[i2c.scala 20:26]
-  wire  i2c_top_io_intr; // @[i2c.scala 20:26]
-  wire  _write_register_T = io_request_ready & io_request_valid; // @[Decoupled.scala 40:37]
-  wire  write_register = _write_register_T & io_request_bits_isWrite; // @[i2c.scala 27:26]
-  wire  read_register = _write_register_T & ~io_request_bits_isWrite; // @[i2c.scala 28:25]
-  reg [7:0] io_response_bits_dataResponse_REG; // @[i2c.scala 36:45]
-  reg  io_response_valid_REG; // @[i2c.scala 37:33]
-  reg  io_response_bits_error_REG; // @[i2c.scala 38:38]
-  wire [7:0] addr_reg = {{1'd0}, io_request_bits_addrRequest[6:0]}; // @[i2c.scala 25:24 i2c.scala 30:14]
-  I2C_Top i2c_top ( // @[i2c.scala 20:26]
-    .clock(i2c_top_clock),
-    .reset(i2c_top_reset),
-    .io_wdata(i2c_top_io_wdata),
-    .io_addr(i2c_top_io_addr),
-    .io_ren(i2c_top_io_ren),
-    .io_we(i2c_top_io_we),
-    .io_sda(i2c_top_io_sda),
-    .io_scl(i2c_top_io_scl),
-    .io_data_out(i2c_top_io_data_out),
-    .io_intr(i2c_top_io_intr)
-  );
-  assign io_request_ready = 1'h1; // @[i2c.scala 18:22]
-  assign io_response_valid = io_response_valid_REG; // @[i2c.scala 37:23]
-  assign io_response_bits_dataResponse = {{24'd0}, io_response_bits_dataResponse_REG}; // @[i2c.scala 36:35]
-  assign io_response_bits_error = io_response_bits_error_REG; // @[i2c.scala 38:28]
-  assign io_cio_i2c_sda = i2c_top_io_sda; // @[i2c.scala 42:20]
-  assign io_cio_i2c_scl = i2c_top_io_scl; // @[i2c.scala 43:20]
-  assign io_cio_i2c_intr = i2c_top_io_intr; // @[i2c.scala 44:21]
-  assign i2c_top_clock = clock;
-  assign i2c_top_reset = reset;
-  assign i2c_top_io_wdata = io_request_bits_dataRequest; // @[i2c.scala 24:24 i2c.scala 29:14]
-  assign i2c_top_io_addr = addr_reg[6:0]; // @[i2c.scala 32:21]
-  assign i2c_top_io_ren = _write_register_T & ~io_request_bits_isWrite; // @[i2c.scala 28:25]
-  assign i2c_top_io_we = _write_register_T & io_request_bits_isWrite; // @[i2c.scala 27:26]
-  always @(posedge clock) begin
-    io_response_bits_dataResponse_REG <= i2c_top_io_data_out; // @[i2c.scala 36:49]
-    io_response_valid_REG <= write_register | read_register; // @[i2c.scala 37:53]
-    io_response_bits_error_REG <= i2c_top_io_intr; // @[i2c.scala 38:42]
-  end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_REG_INIT
-  _RAND_0 = {1{`RANDOM}};
-  io_response_bits_dataResponse_REG = _RAND_0[7:0];
-  _RAND_1 = {1{`RANDOM}};
-  io_response_valid_REG = _RAND_1[0:0];
-  _RAND_2 = {1{`RANDOM}};
-  io_response_bits_error_REG = _RAND_2[0:0];
-`endif // RANDOMIZE_REG_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
-endmodule
 module BlockRamWithoutMasking(
   input         clock,
   input         reset,
@@ -2365,7 +1552,7 @@ module BlockRamWithoutMasking(
   reg [31:0] mem [0:1023]; // @[BlockRam.scala 82:24]
   wire [31:0] mem_io_rsp_bits_dataResponse_MPORT_data; // @[BlockRam.scala 82:24]
 initial begin
- $readmemh("/Users/shahzaib/SoC-Now-Generator/program.mem", mem); 
+ $readmemh("program.mem", mem); 
  end
   wire [9:0] mem_io_rsp_bits_dataResponse_MPORT_addr; // @[BlockRam.scala 82:24]
   wire [31:0] mem_MPORT_data; // @[BlockRam.scala 82:24]
@@ -4519,13 +3706,6 @@ module Switch1toN(
   output        io_devOut_3_valid,
   output        io_devOut_3_bits_cyc,
   output        io_devOut_3_bits_stb,
-  output        io_devOut_3_bits_we,
-  output [31:0] io_devOut_3_bits_adr,
-  output [31:0] io_devOut_3_bits_dat,
-  output [3:0]  io_devOut_3_bits_sel,
-  output        io_devOut_4_valid,
-  output        io_devOut_4_bits_cyc,
-  output        io_devOut_4_bits_stb,
   input         io_devIn_0_bits_ack,
   input  [31:0] io_devIn_0_bits_dat,
   input         io_devIn_0_bits_err,
@@ -4535,60 +3715,46 @@ module Switch1toN(
   input         io_devIn_2_bits_ack,
   input  [31:0] io_devIn_2_bits_dat,
   input         io_devIn_2_bits_err,
-  input         io_devIn_3_bits_ack,
   input  [31:0] io_devIn_3_bits_dat,
   input         io_devIn_3_bits_err,
-  input  [31:0] io_devIn_4_bits_dat,
-  input         io_devIn_4_bits_err,
-  input  [2:0]  io_devSel
+  input  [1:0]  io_devSel
 );
-  wire  _io_devOut_0_valid_T = io_devSel == 3'h0; // @[Switch1toN.scala 33:57]
-  wire  _io_devOut_1_valid_T = io_devSel == 3'h1; // @[Switch1toN.scala 33:57]
-  wire  _io_devOut_2_valid_T = io_devSel == 3'h2; // @[Switch1toN.scala 33:57]
-  wire  _io_devOut_3_valid_T = io_devSel == 3'h3; // @[Switch1toN.scala 33:57]
-  wire  _GEN_0 = _io_devOut_0_valid_T ? io_devIn_0_bits_err : io_devIn_4_bits_err; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23 Switch1toN.scala 27:19]
-  wire [31:0] _GEN_1 = _io_devOut_0_valid_T ? io_devIn_0_bits_dat : io_devIn_4_bits_dat; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23 Switch1toN.scala 27:19]
+  wire  _io_devOut_0_valid_T = io_devSel == 2'h0; // @[Switch1toN.scala 33:57]
+  wire  _io_devOut_1_valid_T = io_devSel == 2'h1; // @[Switch1toN.scala 33:57]
+  wire  _io_devOut_2_valid_T = io_devSel == 2'h2; // @[Switch1toN.scala 33:57]
+  wire  _GEN_0 = _io_devOut_0_valid_T ? io_devIn_0_bits_err : io_devIn_3_bits_err; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23 Switch1toN.scala 27:19]
+  wire [31:0] _GEN_1 = _io_devOut_0_valid_T ? io_devIn_0_bits_dat : io_devIn_3_bits_dat; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23 Switch1toN.scala 27:19]
   wire  _GEN_2 = _io_devOut_0_valid_T & io_devIn_0_bits_ack; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23 Switch1toN.scala 27:19]
   wire  _GEN_4 = _io_devOut_1_valid_T ? io_devIn_1_bits_err : _GEN_0; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
   wire [31:0] _GEN_5 = _io_devOut_1_valid_T ? io_devIn_1_bits_dat : _GEN_1; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
   wire  _GEN_6 = _io_devOut_1_valid_T ? io_devIn_1_bits_ack : _GEN_2; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  wire  _GEN_8 = _io_devOut_2_valid_T ? io_devIn_2_bits_err : _GEN_4; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  wire [31:0] _GEN_9 = _io_devOut_2_valid_T ? io_devIn_2_bits_dat : _GEN_5; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  wire  _GEN_10 = _io_devOut_2_valid_T ? io_devIn_2_bits_ack : _GEN_6; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  assign io_hostOut_bits_ack = _io_devOut_3_valid_T ? io_devIn_3_bits_ack : _GEN_10; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  assign io_hostOut_bits_dat = _io_devOut_3_valid_T ? io_devIn_3_bits_dat : _GEN_9; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  assign io_hostOut_bits_err = _io_devOut_3_valid_T ? io_devIn_3_bits_err : _GEN_8; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
-  assign io_devOut_0_valid = io_hostIn_valid & io_devSel == 3'h0; // @[Switch1toN.scala 33:43]
+  assign io_hostOut_bits_ack = _io_devOut_2_valid_T ? io_devIn_2_bits_ack : _GEN_6; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
+  assign io_hostOut_bits_dat = _io_devOut_2_valid_T ? io_devIn_2_bits_dat : _GEN_5; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
+  assign io_hostOut_bits_err = _io_devOut_2_valid_T ? io_devIn_2_bits_err : _GEN_4; // @[Switch1toN.scala 39:35 Switch1toN.scala 40:23]
+  assign io_devOut_0_valid = io_hostIn_valid & io_devSel == 2'h0; // @[Switch1toN.scala 33:43]
   assign io_devOut_0_bits_cyc = io_hostIn_bits_cyc; // @[Switch1toN.scala 31:33]
   assign io_devOut_0_bits_stb = io_hostIn_bits_stb; // @[Switch1toN.scala 31:33]
   assign io_devOut_0_bits_we = io_hostIn_bits_we; // @[Switch1toN.scala 31:33]
   assign io_devOut_0_bits_adr = io_hostIn_bits_adr; // @[Switch1toN.scala 31:33]
   assign io_devOut_0_bits_dat = io_hostIn_bits_dat; // @[Switch1toN.scala 31:33]
   assign io_devOut_0_bits_sel = io_hostIn_bits_sel; // @[Switch1toN.scala 31:33]
-  assign io_devOut_1_valid = io_hostIn_valid & io_devSel == 3'h1; // @[Switch1toN.scala 33:43]
+  assign io_devOut_1_valid = io_hostIn_valid & io_devSel == 2'h1; // @[Switch1toN.scala 33:43]
   assign io_devOut_1_bits_cyc = io_hostIn_bits_cyc; // @[Switch1toN.scala 31:33]
   assign io_devOut_1_bits_stb = io_hostIn_bits_stb; // @[Switch1toN.scala 31:33]
   assign io_devOut_1_bits_we = io_hostIn_bits_we; // @[Switch1toN.scala 31:33]
   assign io_devOut_1_bits_adr = io_hostIn_bits_adr; // @[Switch1toN.scala 31:33]
   assign io_devOut_1_bits_dat = io_hostIn_bits_dat; // @[Switch1toN.scala 31:33]
   assign io_devOut_1_bits_sel = io_hostIn_bits_sel; // @[Switch1toN.scala 31:33]
-  assign io_devOut_2_valid = io_hostIn_valid & io_devSel == 3'h2; // @[Switch1toN.scala 33:43]
+  assign io_devOut_2_valid = io_hostIn_valid & io_devSel == 2'h2; // @[Switch1toN.scala 33:43]
   assign io_devOut_2_bits_cyc = io_hostIn_bits_cyc; // @[Switch1toN.scala 31:33]
   assign io_devOut_2_bits_stb = io_hostIn_bits_stb; // @[Switch1toN.scala 31:33]
   assign io_devOut_2_bits_we = io_hostIn_bits_we; // @[Switch1toN.scala 31:33]
   assign io_devOut_2_bits_adr = io_hostIn_bits_adr; // @[Switch1toN.scala 31:33]
   assign io_devOut_2_bits_dat = io_hostIn_bits_dat; // @[Switch1toN.scala 31:33]
   assign io_devOut_2_bits_sel = io_hostIn_bits_sel; // @[Switch1toN.scala 31:33]
-  assign io_devOut_3_valid = io_hostIn_valid & io_devSel == 3'h3; // @[Switch1toN.scala 33:43]
+  assign io_devOut_3_valid = io_hostIn_valid & io_devSel == 2'h3; // @[Switch1toN.scala 23:41]
   assign io_devOut_3_bits_cyc = io_hostIn_bits_cyc; // @[Switch1toN.scala 31:33]
   assign io_devOut_3_bits_stb = io_hostIn_bits_stb; // @[Switch1toN.scala 31:33]
-  assign io_devOut_3_bits_we = io_hostIn_bits_we; // @[Switch1toN.scala 31:33]
-  assign io_devOut_3_bits_adr = io_hostIn_bits_adr; // @[Switch1toN.scala 31:33]
-  assign io_devOut_3_bits_dat = io_hostIn_bits_dat; // @[Switch1toN.scala 31:33]
-  assign io_devOut_3_bits_sel = io_hostIn_bits_sel; // @[Switch1toN.scala 31:33]
-  assign io_devOut_4_valid = io_hostIn_valid & io_devSel == 3'h4; // @[Switch1toN.scala 23:41]
-  assign io_devOut_4_bits_cyc = io_hostIn_bits_cyc; // @[Switch1toN.scala 31:33]
-  assign io_devOut_4_bits_stb = io_hostIn_bits_stb; // @[Switch1toN.scala 31:33]
 endmodule
 module GeneratorWB(
   input        clock,
@@ -4597,10 +3763,7 @@ module GeneratorWB(
   output [7:0] io_gpio_en_o,
   input  [7:0] io_gpio_i,
   output       io_timer_intr_cmp,
-  output       io_timer_intr_ovf,
-  output       io_i2c_sda,
-  output       io_i2c_scl,
-  output       io_i2c_intr
+  output       io_timer_intr_ovf
 );
   wire  gen_imem_host_clock; // @[Generator.scala 206:29]
   wire  gen_imem_host_reset; // @[Generator.scala 206:29]
@@ -4749,39 +3912,6 @@ module GeneratorWB(
   wire  slaves_2_io_rspIn_valid; // @[Generator.scala 267:31]
   wire [31:0] slaves_2_io_rspIn_bits_dataResponse; // @[Generator.scala 267:31]
   wire  slaves_2_io_rspIn_bits_error; // @[Generator.scala 267:31]
-  wire  i2c_clock; // @[Generator.scala 280:19]
-  wire  i2c_reset; // @[Generator.scala 280:19]
-  wire  i2c_io_request_ready; // @[Generator.scala 280:19]
-  wire  i2c_io_request_valid; // @[Generator.scala 280:19]
-  wire [31:0] i2c_io_request_bits_addrRequest; // @[Generator.scala 280:19]
-  wire [31:0] i2c_io_request_bits_dataRequest; // @[Generator.scala 280:19]
-  wire  i2c_io_request_bits_isWrite; // @[Generator.scala 280:19]
-  wire  i2c_io_response_valid; // @[Generator.scala 280:19]
-  wire [31:0] i2c_io_response_bits_dataResponse; // @[Generator.scala 280:19]
-  wire  i2c_io_response_bits_error; // @[Generator.scala 280:19]
-  wire  i2c_io_cio_i2c_sda; // @[Generator.scala 280:19]
-  wire  i2c_io_cio_i2c_scl; // @[Generator.scala 280:19]
-  wire  i2c_io_cio_i2c_intr; // @[Generator.scala 280:19]
-  wire  slaves_3_io_wbSlaveTransmitter_ready; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbSlaveTransmitter_bits_ack; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_wbSlaveTransmitter_bits_dat; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbSlaveTransmitter_bits_err; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbMasterReceiver_ready; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbMasterReceiver_valid; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbMasterReceiver_bits_cyc; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbMasterReceiver_bits_stb; // @[Generator.scala 282:29]
-  wire  slaves_3_io_wbMasterReceiver_bits_we; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_wbMasterReceiver_bits_adr; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_wbMasterReceiver_bits_dat; // @[Generator.scala 282:29]
-  wire [3:0] slaves_3_io_wbMasterReceiver_bits_sel; // @[Generator.scala 282:29]
-  wire  slaves_3_io_reqOut_valid; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_reqOut_bits_addrRequest; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_reqOut_bits_dataRequest; // @[Generator.scala 282:29]
-  wire [3:0] slaves_3_io_reqOut_bits_activeByteLane; // @[Generator.scala 282:29]
-  wire  slaves_3_io_reqOut_bits_isWrite; // @[Generator.scala 282:29]
-  wire  slaves_3_io_rspIn_valid; // @[Generator.scala 282:29]
-  wire [31:0] slaves_3_io_rspIn_bits_dataResponse; // @[Generator.scala 282:29]
-  wire  slaves_3_io_rspIn_bits_error; // @[Generator.scala 282:29]
   wire  imem_clock; // @[Generator.scala 355:20]
   wire  imem_reset; // @[Generator.scala 355:20]
   wire  imem_io_req_ready; // @[Generator.scala 355:20]
@@ -4856,13 +3986,6 @@ module GeneratorWB(
   wire  switch_io_devOut_3_valid; // @[Generator.scala 372:22]
   wire  switch_io_devOut_3_bits_cyc; // @[Generator.scala 372:22]
   wire  switch_io_devOut_3_bits_stb; // @[Generator.scala 372:22]
-  wire  switch_io_devOut_3_bits_we; // @[Generator.scala 372:22]
-  wire [31:0] switch_io_devOut_3_bits_adr; // @[Generator.scala 372:22]
-  wire [31:0] switch_io_devOut_3_bits_dat; // @[Generator.scala 372:22]
-  wire [3:0] switch_io_devOut_3_bits_sel; // @[Generator.scala 372:22]
-  wire  switch_io_devOut_4_valid; // @[Generator.scala 372:22]
-  wire  switch_io_devOut_4_bits_cyc; // @[Generator.scala 372:22]
-  wire  switch_io_devOut_4_bits_stb; // @[Generator.scala 372:22]
   wire  switch_io_devIn_0_bits_ack; // @[Generator.scala 372:22]
   wire [31:0] switch_io_devIn_0_bits_dat; // @[Generator.scala 372:22]
   wire  switch_io_devIn_0_bits_err; // @[Generator.scala 372:22]
@@ -4872,24 +3995,18 @@ module GeneratorWB(
   wire  switch_io_devIn_2_bits_ack; // @[Generator.scala 372:22]
   wire [31:0] switch_io_devIn_2_bits_dat; // @[Generator.scala 372:22]
   wire  switch_io_devIn_2_bits_err; // @[Generator.scala 372:22]
-  wire  switch_io_devIn_3_bits_ack; // @[Generator.scala 372:22]
   wire [31:0] switch_io_devIn_3_bits_dat; // @[Generator.scala 372:22]
   wire  switch_io_devIn_3_bits_err; // @[Generator.scala 372:22]
-  wire [31:0] switch_io_devIn_4_bits_dat; // @[Generator.scala 372:22]
-  wire  switch_io_devIn_4_bits_err; // @[Generator.scala 372:22]
-  wire [2:0] switch_io_devSel; // @[Generator.scala 372:22]
+  wire [1:0] switch_io_devSel; // @[Generator.scala 372:22]
   wire [31:0] _switch_io_devSel_addr_hit_0_T_1 = 32'hfffff000 & gen_dmem_host_io_wbMasterTransmitter_bits_adr; // @[BusDecoder.scala 45:60]
   wire  switch_io_devSel_addr_hit_0 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40000000; // @[BusDecoder.scala 45:68]
-  wire [2:0] switch_io_devSel_id_0 = switch_io_devSel_addr_hit_0 ? 3'h0 : 3'h4; // @[BusDecoder.scala 46:19]
-  wire  switch_io_devSel_addr_hit_1 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40003000; // @[BusDecoder.scala 45:68]
-  wire [2:0] switch_io_devSel_id_1 = switch_io_devSel_addr_hit_1 ? 3'h3 : 3'h4; // @[BusDecoder.scala 46:19]
-  wire  switch_io_devSel_addr_hit_2 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40001000; // @[BusDecoder.scala 45:68]
-  wire [2:0] switch_io_devSel_id_2 = switch_io_devSel_addr_hit_2 ? 3'h1 : 3'h4; // @[BusDecoder.scala 46:19]
-  wire  switch_io_devSel_addr_hit_3 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40002000; // @[BusDecoder.scala 45:68]
-  wire [2:0] switch_io_devSel_id_3 = switch_io_devSel_addr_hit_3 ? 3'h2 : 3'h4; // @[BusDecoder.scala 46:19]
-  wire [2:0] _switch_io_devSel_T = switch_io_devSel_addr_hit_3 ? switch_io_devSel_id_3 : 3'h4; // @[Mux.scala 98:16]
-  wire [2:0] _switch_io_devSel_T_1 = switch_io_devSel_addr_hit_2 ? switch_io_devSel_id_2 : _switch_io_devSel_T; // @[Mux.scala 98:16]
-  wire [2:0] _switch_io_devSel_T_2 = switch_io_devSel_addr_hit_1 ? switch_io_devSel_id_1 : _switch_io_devSel_T_1; // @[Mux.scala 98:16]
+  wire [1:0] switch_io_devSel_id_0 = switch_io_devSel_addr_hit_0 ? 2'h0 : 2'h3; // @[BusDecoder.scala 46:19]
+  wire  switch_io_devSel_addr_hit_1 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40001000; // @[BusDecoder.scala 45:68]
+  wire [1:0] switch_io_devSel_id_1 = switch_io_devSel_addr_hit_1 ? 2'h1 : 2'h3; // @[BusDecoder.scala 46:19]
+  wire  switch_io_devSel_addr_hit_2 = _switch_io_devSel_addr_hit_0_T_1 == 32'h40002000; // @[BusDecoder.scala 45:68]
+  wire [1:0] switch_io_devSel_id_2 = switch_io_devSel_addr_hit_2 ? 2'h2 : 2'h3; // @[BusDecoder.scala 46:19]
+  wire [1:0] _switch_io_devSel_T = switch_io_devSel_addr_hit_2 ? switch_io_devSel_id_2 : 2'h3; // @[Mux.scala 98:16]
+  wire [1:0] _switch_io_devSel_T_1 = switch_io_devSel_addr_hit_1 ? switch_io_devSel_id_1 : _switch_io_devSel_T; // @[Mux.scala 98:16]
   WishboneHost gen_imem_host ( // @[Generator.scala 206:29]
     .clock(gen_imem_host_clock),
     .reset(gen_imem_host_reset),
@@ -5053,43 +4170,6 @@ module GeneratorWB(
     .io_rspIn_bits_dataResponse(slaves_2_io_rspIn_bits_dataResponse),
     .io_rspIn_bits_error(slaves_2_io_rspIn_bits_error)
   );
-  i2c i2c ( // @[Generator.scala 280:19]
-    .clock(i2c_clock),
-    .reset(i2c_reset),
-    .io_request_ready(i2c_io_request_ready),
-    .io_request_valid(i2c_io_request_valid),
-    .io_request_bits_addrRequest(i2c_io_request_bits_addrRequest),
-    .io_request_bits_dataRequest(i2c_io_request_bits_dataRequest),
-    .io_request_bits_isWrite(i2c_io_request_bits_isWrite),
-    .io_response_valid(i2c_io_response_valid),
-    .io_response_bits_dataResponse(i2c_io_response_bits_dataResponse),
-    .io_response_bits_error(i2c_io_response_bits_error),
-    .io_cio_i2c_sda(i2c_io_cio_i2c_sda),
-    .io_cio_i2c_scl(i2c_io_cio_i2c_scl),
-    .io_cio_i2c_intr(i2c_io_cio_i2c_intr)
-  );
-  WishboneDevice slaves_3 ( // @[Generator.scala 282:29]
-    .io_wbSlaveTransmitter_ready(slaves_3_io_wbSlaveTransmitter_ready),
-    .io_wbSlaveTransmitter_bits_ack(slaves_3_io_wbSlaveTransmitter_bits_ack),
-    .io_wbSlaveTransmitter_bits_dat(slaves_3_io_wbSlaveTransmitter_bits_dat),
-    .io_wbSlaveTransmitter_bits_err(slaves_3_io_wbSlaveTransmitter_bits_err),
-    .io_wbMasterReceiver_ready(slaves_3_io_wbMasterReceiver_ready),
-    .io_wbMasterReceiver_valid(slaves_3_io_wbMasterReceiver_valid),
-    .io_wbMasterReceiver_bits_cyc(slaves_3_io_wbMasterReceiver_bits_cyc),
-    .io_wbMasterReceiver_bits_stb(slaves_3_io_wbMasterReceiver_bits_stb),
-    .io_wbMasterReceiver_bits_we(slaves_3_io_wbMasterReceiver_bits_we),
-    .io_wbMasterReceiver_bits_adr(slaves_3_io_wbMasterReceiver_bits_adr),
-    .io_wbMasterReceiver_bits_dat(slaves_3_io_wbMasterReceiver_bits_dat),
-    .io_wbMasterReceiver_bits_sel(slaves_3_io_wbMasterReceiver_bits_sel),
-    .io_reqOut_valid(slaves_3_io_reqOut_valid),
-    .io_reqOut_bits_addrRequest(slaves_3_io_reqOut_bits_addrRequest),
-    .io_reqOut_bits_dataRequest(slaves_3_io_reqOut_bits_dataRequest),
-    .io_reqOut_bits_activeByteLane(slaves_3_io_reqOut_bits_activeByteLane),
-    .io_reqOut_bits_isWrite(slaves_3_io_reqOut_bits_isWrite),
-    .io_rspIn_valid(slaves_3_io_rspIn_valid),
-    .io_rspIn_bits_dataResponse(slaves_3_io_rspIn_bits_dataResponse),
-    .io_rspIn_bits_error(slaves_3_io_rspIn_bits_error)
-  );
   BlockRamWithoutMasking imem ( // @[Generator.scala 355:20]
     .clock(imem_clock),
     .reset(imem_reset),
@@ -5173,13 +4253,6 @@ module GeneratorWB(
     .io_devOut_3_valid(switch_io_devOut_3_valid),
     .io_devOut_3_bits_cyc(switch_io_devOut_3_bits_cyc),
     .io_devOut_3_bits_stb(switch_io_devOut_3_bits_stb),
-    .io_devOut_3_bits_we(switch_io_devOut_3_bits_we),
-    .io_devOut_3_bits_adr(switch_io_devOut_3_bits_adr),
-    .io_devOut_3_bits_dat(switch_io_devOut_3_bits_dat),
-    .io_devOut_3_bits_sel(switch_io_devOut_3_bits_sel),
-    .io_devOut_4_valid(switch_io_devOut_4_valid),
-    .io_devOut_4_bits_cyc(switch_io_devOut_4_bits_cyc),
-    .io_devOut_4_bits_stb(switch_io_devOut_4_bits_stb),
     .io_devIn_0_bits_ack(switch_io_devIn_0_bits_ack),
     .io_devIn_0_bits_dat(switch_io_devIn_0_bits_dat),
     .io_devIn_0_bits_err(switch_io_devIn_0_bits_err),
@@ -5189,20 +4262,14 @@ module GeneratorWB(
     .io_devIn_2_bits_ack(switch_io_devIn_2_bits_ack),
     .io_devIn_2_bits_dat(switch_io_devIn_2_bits_dat),
     .io_devIn_2_bits_err(switch_io_devIn_2_bits_err),
-    .io_devIn_3_bits_ack(switch_io_devIn_3_bits_ack),
     .io_devIn_3_bits_dat(switch_io_devIn_3_bits_dat),
     .io_devIn_3_bits_err(switch_io_devIn_3_bits_err),
-    .io_devIn_4_bits_dat(switch_io_devIn_4_bits_dat),
-    .io_devIn_4_bits_err(switch_io_devIn_4_bits_err),
     .io_devSel(switch_io_devSel)
   );
   assign io_gpio_o = gpio_io_cio_gpio_o[7:0]; // @[Generator.scala 219:34]
   assign io_gpio_en_o = gpio_io_cio_gpio_en_o[7:0]; // @[Generator.scala 220:40]
   assign io_timer_intr_cmp = timer_io_cio_timer_intr_cmp; // @[Generator.scala 272:21]
   assign io_timer_intr_ovf = timer_io_cio_timer_intr_ovf; // @[Generator.scala 273:21]
-  assign io_i2c_sda = i2c_io_cio_i2c_sda; // @[Generator.scala 287:14]
-  assign io_i2c_scl = i2c_io_cio_i2c_scl; // @[Generator.scala 288:14]
-  assign io_i2c_intr = i2c_io_cio_i2c_intr; // @[Generator.scala 289:15]
   assign gen_imem_host_clock = clock;
   assign gen_imem_host_reset = reset;
   assign gen_imem_host_io_wbMasterTransmitter_ready = gen_imem_slave_io_wbMasterReceiver_ready; // @[Generator.scala 381:40]
@@ -5282,23 +4349,6 @@ module GeneratorWB(
   assign slaves_2_io_rspIn_valid = timer_io_rsp_valid; // @[Generator.scala 270:28]
   assign slaves_2_io_rspIn_bits_dataResponse = timer_io_rsp_bits_dataResponse; // @[Generator.scala 270:28]
   assign slaves_2_io_rspIn_bits_error = timer_io_rsp_bits_error; // @[Generator.scala 270:28]
-  assign i2c_clock = clock;
-  assign i2c_reset = reset;
-  assign i2c_io_request_valid = slaves_3_io_reqOut_valid; // @[Generator.scala 284:27]
-  assign i2c_io_request_bits_addrRequest = slaves_3_io_reqOut_bits_addrRequest; // @[Generator.scala 284:27]
-  assign i2c_io_request_bits_dataRequest = slaves_3_io_reqOut_bits_dataRequest; // @[Generator.scala 284:27]
-  assign i2c_io_request_bits_isWrite = slaves_3_io_reqOut_bits_isWrite; // @[Generator.scala 284:27]
-  assign slaves_3_io_wbSlaveTransmitter_ready = 1'h1; // @[Generator.scala 395:53]
-  assign slaves_3_io_wbMasterReceiver_valid = switch_io_devOut_3_valid; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_cyc = switch_io_devOut_3_bits_cyc; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_stb = switch_io_devOut_3_bits_stb; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_we = switch_io_devOut_3_bits_we; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_adr = switch_io_devOut_3_bits_adr; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_dat = switch_io_devOut_3_bits_dat; // @[Generator.scala 396:54]
-  assign slaves_3_io_wbMasterReceiver_bits_sel = switch_io_devOut_3_bits_sel; // @[Generator.scala 396:54]
-  assign slaves_3_io_rspIn_valid = i2c_io_response_valid; // @[Generator.scala 285:26]
-  assign slaves_3_io_rspIn_bits_dataResponse = i2c_io_response_bits_dataResponse; // @[Generator.scala 285:26]
-  assign slaves_3_io_rspIn_bits_error = i2c_io_response_bits_error; // @[Generator.scala 285:26]
   assign imem_clock = clock;
   assign imem_reset = reset;
   assign imem_io_req_valid = gen_imem_slave_io_reqOut_valid; // @[Generator.scala 377:28]
@@ -5314,9 +4364,9 @@ module GeneratorWB(
   assign dmem_io_req_bits_isWrite = gen_dmem_slave_io_reqOut_bits_isWrite; // @[Generator.scala 387:28]
   assign wbErr_clock = clock;
   assign wbErr_reset = reset;
-  assign wbErr_io_wbMasterReceiver_valid = switch_io_devOut_4_valid; // @[Generator.scala 399:34]
-  assign wbErr_io_wbMasterReceiver_bits_cyc = switch_io_devOut_4_bits_cyc; // @[Generator.scala 399:34]
-  assign wbErr_io_wbMasterReceiver_bits_stb = switch_io_devOut_4_bits_stb; // @[Generator.scala 399:34]
+  assign wbErr_io_wbMasterReceiver_valid = switch_io_devOut_3_valid; // @[Generator.scala 399:34]
+  assign wbErr_io_wbMasterReceiver_bits_cyc = switch_io_devOut_3_bits_cyc; // @[Generator.scala 399:34]
+  assign wbErr_io_wbMasterReceiver_bits_stb = switch_io_devOut_3_bits_stb; // @[Generator.scala 399:34]
   assign core_clock = clock;
   assign core_reset = reset;
   assign core_io_dmemRsp_valid = gen_dmem_host_io_rspOut_valid; // @[Generator.scala 386:19]
@@ -5340,12 +4390,9 @@ module GeneratorWB(
   assign switch_io_devIn_2_bits_ack = slaves_2_io_wbSlaveTransmitter_bits_ack; // @[Generator.scala 395:53]
   assign switch_io_devIn_2_bits_dat = slaves_2_io_wbSlaveTransmitter_bits_dat; // @[Generator.scala 395:53]
   assign switch_io_devIn_2_bits_err = slaves_2_io_wbSlaveTransmitter_bits_err; // @[Generator.scala 395:53]
-  assign switch_io_devIn_3_bits_ack = slaves_3_io_wbSlaveTransmitter_bits_ack; // @[Generator.scala 395:53]
-  assign switch_io_devIn_3_bits_dat = slaves_3_io_wbSlaveTransmitter_bits_dat; // @[Generator.scala 395:53]
-  assign switch_io_devIn_3_bits_err = slaves_3_io_wbSlaveTransmitter_bits_err; // @[Generator.scala 395:53]
-  assign switch_io_devIn_4_bits_dat = wbErr_io_wbSlaveTransmitter_bits_dat; // @[Generator.scala 398:33]
-  assign switch_io_devIn_4_bits_err = wbErr_io_wbSlaveTransmitter_bits_err; // @[Generator.scala 398:33]
-  assign switch_io_devSel = switch_io_devSel_addr_hit_0 ? switch_io_devSel_id_0 : _switch_io_devSel_T_2; // @[Mux.scala 98:16]
+  assign switch_io_devIn_3_bits_dat = wbErr_io_wbSlaveTransmitter_bits_dat; // @[Generator.scala 398:33]
+  assign switch_io_devIn_3_bits_err = wbErr_io_wbSlaveTransmitter_bits_err; // @[Generator.scala 398:33]
+  assign switch_io_devSel = switch_io_devSel_addr_hit_0 ? switch_io_devSel_id_0 : _switch_io_devSel_T_1; // @[Mux.scala 98:16]
 endmodule
 module Generator(
   input        clock,
@@ -5354,10 +4401,7 @@ module Generator(
   output [3:0] io_gpio_en_o,
   input  [3:0] io_gpio_i,
   output       io_timer_intr_cmp,
-  output       io_timer_intr_ovf,
-  output       io_i2c_sda,
-  output       io_i2c_scl,
-  output       io_i2c_intr
+  output       io_timer_intr_ovf
 );
   wire  genWB_clock; // @[Generator.scala 113:23]
   wire  genWB_reset; // @[Generator.scala 113:23]
@@ -5366,9 +4410,6 @@ module Generator(
   wire [7:0] genWB_io_gpio_i; // @[Generator.scala 113:23]
   wire  genWB_io_timer_intr_cmp; // @[Generator.scala 113:23]
   wire  genWB_io_timer_intr_ovf; // @[Generator.scala 113:23]
-  wire  genWB_io_i2c_sda; // @[Generator.scala 113:23]
-  wire  genWB_io_i2c_scl; // @[Generator.scala 113:23]
-  wire  genWB_io_i2c_intr; // @[Generator.scala 113:23]
   GeneratorWB genWB ( // @[Generator.scala 113:23]
     .clock(genWB_clock),
     .reset(genWB_reset),
@@ -5376,18 +4417,12 @@ module Generator(
     .io_gpio_en_o(genWB_io_gpio_en_o),
     .io_gpio_i(genWB_io_gpio_i),
     .io_timer_intr_cmp(genWB_io_timer_intr_cmp),
-    .io_timer_intr_ovf(genWB_io_timer_intr_ovf),
-    .io_i2c_sda(genWB_io_i2c_sda),
-    .io_i2c_scl(genWB_io_i2c_scl),
-    .io_i2c_intr(genWB_io_i2c_intr)
+    .io_timer_intr_ovf(genWB_io_timer_intr_ovf)
   );
   assign io_gpio_o = genWB_io_gpio_o[3:0]; // @[Generator.scala 124:15]
   assign io_gpio_en_o = genWB_io_gpio_en_o[3:0]; // @[Generator.scala 125:18]
   assign io_timer_intr_cmp = genWB_io_timer_intr_cmp; // @[Generator.scala 128:23]
   assign io_timer_intr_ovf = genWB_io_timer_intr_ovf; // @[Generator.scala 129:23]
-  assign io_i2c_sda = genWB_io_i2c_sda; // @[Generator.scala 131:16]
-  assign io_i2c_scl = genWB_io_i2c_scl; // @[Generator.scala 132:16]
-  assign io_i2c_intr = genWB_io_i2c_intr; // @[Generator.scala 133:17]
   assign genWB_clock = clock;
   assign genWB_reset = reset;
   assign genWB_io_gpio_i = {{4'd0}, io_gpio_i}; // @[Generator.scala 126:21]
@@ -5419,9 +4454,6 @@ module SoCNow(
   wire [3:0] top_io_gpio_i; // @[Generator.scala 43:19]
   wire  top_io_timer_intr_cmp; // @[Generator.scala 43:19]
   wire  top_io_timer_intr_ovf; // @[Generator.scala 43:19]
-  wire  top_io_i2c_sda; // @[Generator.scala 43:19]
-  wire  top_io_i2c_scl; // @[Generator.scala 43:19]
-  wire  top_io_i2c_intr; // @[Generator.scala 43:19]
   wire  pll_clk_in1; // @[Generator.scala 44:19]
   wire  pll_clk_out1; // @[Generator.scala 44:19]
   wire  gpioPads_0_O; // @[TriStateBuffer.scala 21:81]
@@ -5453,10 +4485,7 @@ module SoCNow(
     .io_gpio_en_o(top_io_gpio_en_o),
     .io_gpio_i(top_io_gpio_i),
     .io_timer_intr_cmp(top_io_timer_intr_cmp),
-    .io_timer_intr_ovf(top_io_timer_intr_ovf),
-    .io_i2c_sda(top_io_i2c_sda),
-    .io_i2c_scl(top_io_i2c_scl),
-    .io_i2c_intr(top_io_i2c_intr)
+    .io_timer_intr_ovf(top_io_timer_intr_ovf)
   );
   PLL_8MHz pll ( // @[Generator.scala 44:19]
     .clk_in1(pll_clk_in1),
@@ -5493,9 +4522,9 @@ module SoCNow(
   assign io_cio_uart_intr_tx_o = 1'h0; // @[Generator.scala 71:25]
   assign io_timer_intr_cmp = top_io_timer_intr_cmp; // @[Generator.scala 75:21]
   assign io_timer_intr_ovf = top_io_timer_intr_ovf; // @[Generator.scala 76:21]
-  assign io_i2c_sda = top_io_i2c_sda; // @[Generator.scala 78:14]
-  assign io_i2c_scl = top_io_i2c_scl; // @[Generator.scala 79:14]
-  assign io_i2c_intr = top_io_i2c_intr; // @[Generator.scala 80:15]
+  assign io_i2c_sda = 1'h0; // @[Generator.scala 78:14]
+  assign io_i2c_scl = 1'h0; // @[Generator.scala 79:14]
+  assign io_i2c_intr = 1'h0; // @[Generator.scala 80:15]
   assign top_clock = pll_clk_out1; // @[Generator.scala 47:13]
   assign top_reset = reset;
   assign top_io_gpio_i = {top_io_gpio_i_hi,top_io_gpio_i_lo}; // @[Generator.scala 62:41]
