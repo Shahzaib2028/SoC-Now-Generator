@@ -17,6 +17,74 @@ import jigsaw.peripherals.timer._
 import jigsaw.peripherals.i2c._
 // import scala.util.parsing.json._
 
+
+
+class SoCNow(programFile: Option[String], GPIO:Boolean = true, UART:Boolean = false, SPI:Boolean = false, TIMER:Boolean = false, I2C:Boolean = false, TL:Boolean = true, WB:Boolean = false, M:Boolean = false) extends Module {
+  val io = IO(new Bundle {
+    val gpio_io = Vec(4, Analog(1.W))
+
+    val spi_cs_n = Output(Bool())
+    val spi_sclk = Output(Bool())
+    val spi_mosi = Output(Bool())
+    val spi_miso = Input(Bool())
+
+    val cio_uart_rx_i = Input(Bool())
+    val cio_uart_tx_o = Output(Bool())
+    val cio_uart_intr_tx_o = Output(Bool())
+
+    val timer_intr_cmp = Output(Bool())
+    val timer_intr_ovf = Output(Bool())
+
+    val i2c_sda = Output(Bool())
+    val i2c_scl = Output(Bool())
+    val i2c_intr = Output(Bool())
+  })
+
+  val top = Module(new Generator(programFile, GPIO, UART, SPI, TIMER, I2C, TL, WB, M))
+  val pll = Module(new PLL_8MHz())
+
+  pll.io.clk_in1 := clock
+  top.clock := pll.io.clk_out1
+
+  val gpioInputWires = Wire(Vec(4, Bool()))
+  val gpioOutputWires = Wire(Vec(4, Bool()))
+  val gpioEnableWires = Wire(Vec(4, Bool()))
+
+  val gpioPads = TriStateBuffer(quantity=4)
+  val triStateBufferWires = for {
+    ((((a,b),c),d),e) <- gpioPads zip gpioInputWires zip gpioOutputWires zip gpioEnableWires zip io.gpio_io
+  } yield (a,b,c,d,e)
+
+  triStateBufferWires map { case(buf: IOBUF, in: Bool, out: Bool, en: Bool, io: Analog) => {
+    buf.io.connect(in, out, io, en)
+  }}
+
+  top.io.gpio_i := gpioInputWires.asUInt()
+  gpioOutputWires := top.io.gpio_o.asBools()
+  gpioEnableWires := top.io.gpio_en_o.asBools()
+
+  io.spi_cs_n := top.io.spi_cs_n
+  io.spi_sclk := top.io.spi_sclk
+  io.spi_mosi := top.io.spi_mosi
+  top.io.spi_miso := io.spi_miso
+
+  io.cio_uart_intr_tx_o := top.io.cio_uart_intr_tx_o
+  io.cio_uart_tx_o := top.io.cio_uart_tx_o
+  top.io.cio_uart_rx_i := io.cio_uart_rx_i
+
+  io.timer_intr_cmp := top.io.timer_intr_cmp
+  io.timer_intr_ovf := top.io.timer_intr_ovf
+
+  io.i2c_sda := top.io.i2c_sda
+  io.i2c_scl := top.io.i2c_scl
+  io.i2c_intr := top.io.i2c_intr
+
+
+
+}
+
+
+
 class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean = false, SPI:Boolean = false, TIMER:Boolean = false, I2C:Boolean = false, TL:Boolean = true, WB:Boolean = false, M:Boolean = false) extends Module {
   val io = IO(new Bundle {
     val spi_cs_n = Output(Bool())
@@ -28,9 +96,9 @@ class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean =
     val cio_uart_tx_o = Output(Bool())
     val cio_uart_intr_tx_o = Output(Bool())
 
-    val gpio_o = Output(UInt(8.W))
-    val gpio_en_o = Output(UInt(8.W))
-    val gpio_i = Input(UInt(8.W))
+    val gpio_o = Output(UInt(4.W))
+    val gpio_en_o = Output(UInt(4.W))
+    val gpio_i = Input(UInt(4.W))
 
     val timer_intr_cmp = Output(Bool())
     val timer_intr_ovf = Output(Bool())
@@ -39,6 +107,7 @@ class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean =
     val i2c_scl = Output(Bool())
     val i2c_intr = Output(Bool())
   })
+
 
   if (WB){
     val genWB = Module(new GeneratorWB(programFile = programFile, GPIO=GPIO, UART=UART, TIMER=TIMER, I2C=I2C, SPI=SPI, M=M))
@@ -597,4 +666,15 @@ object GeneratorDriver extends App {
   println("--------------config---------" , fileToJson)
 
   (new ChiselStage).emitVerilog(new Generator(programFile=None, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m")))
+}
+
+
+object SoCNowDriver extends App {
+
+  val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
+
+  val fileToJson = file.parseJson.convertTo[Map[String, JsValue]]
+  val config = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
+  println("--------------config---------" , fileToJson)
+  (new ChiselStage).emitVerilog(new SoCNow(programFile=None, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m")))
 }
