@@ -25,7 +25,8 @@ jobs:
       run: python3 soc_test.py all
     - name: setup F4PGA/Symbiflow
       run: ./f4pga_setup.sh
-    
+    - name: Run Bitstream on all SoC Combinations
+    - run: ./bitstream_runner.sh
    
     # - name: Install dependencies
     #   run: |
