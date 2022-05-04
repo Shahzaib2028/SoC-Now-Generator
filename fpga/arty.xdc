@@ -266,3 +266,5 @@ set_property IOSTANDARD LVCMOS33 [get_ports {clock}]
 #set_property -dict { PACKAGE_PIN A16   IOSTANDARD LVCMOS33     } [get_ports { isns0v95_n }]; #IO_L8N_T1_AD10N_15 Sch=ad_n[10]
 #set_property -dict { PACKAGE_PIN A15   IOSTANDARD LVCMOS33     } [get_ports { isns0v95_p }]; #IO_L8P_T1_AD10P_15 Sch=ad_p[10]
 
+# Clock constraints
+create_clock -period 10.0 [get_ports {clock}]
