@@ -1,8 +1,6 @@
 current_dir := ${CURDIR}
-TOP := SoCNow
-SOURCES := ${current_dir}/SoCNow.v \
-	   ${current_dir}/PLL_8MHz.v \
-	   ${current_dir}/clk_wiz_0_clk_wiz.v  
+TOP := Generator
+SOURCES := ${current_dir}/Generator.v
 BUILDDIR := ${current_dir}/build
 BOARD_BUILDDIR := ${BUILDDIR}/${TARGET}
 ifeq ($(TARGET),arty_35)

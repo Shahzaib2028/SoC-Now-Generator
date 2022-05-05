@@ -1,4 +1,6 @@
-f = open("SoCNow.v", "r")
+
+
+f = open("Generator.v", "r")
 contents = f.readlines()
 f.close()
 
@@ -12,7 +14,7 @@ for i in contents:
         count = count + 1
 
 contents.insert(count, 'initial begin\n $readmemh("program.mem", mem); \n end\n')
-f = open("SoCNow.v", "w")
+f = open("Generator.v", "w")
 contents = "".join(contents)
 f.write(contents)
 f.close()
