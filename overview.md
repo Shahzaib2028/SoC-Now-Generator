@@ -40,8 +40,11 @@
     - UART
     - SPI
     - SPI-Flash
+    - TIMER
+    - I2C
 - There will be parameters to select Bus Architecture which will be the communication medium within the SoC. The choices for Bus Architecture are:
     - Tilelink Uncached (TL-UL)
+    - Wishbone
 
 ## Block Diagram
 <img src="https://github.com/merledu/SoC-Now/blob/main/blockDiagram.png" width="100%">
