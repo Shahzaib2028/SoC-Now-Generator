@@ -168,8 +168,8 @@ class Generator(programFile: Option[String], GPIO:Boolean = true, UART:Boolean =
     io.i2c_scl := genTL.io.i2c_scl
     io.i2c_intr := genTL.io.i2c_intr
 
-    // genWB.io.rx_i := DontCare
-    // genWB.io.CLK_PER_BIT := DontCare
+    genTL.io.rx_i := io.rx_i
+    genTL.io.CLK_PER_BIT := io.CLK_PER_BIT
 
   }
 
@@ -447,10 +447,9 @@ if (I2C){
   }
   .otherwise{
         gen_imem_host.io.reqIn <> core.io.imemReq
-        // dontTouch(core.io.imemReq)
         core.io.imemRsp <> gen_imem_host.io.rspOut
   }
-  //
+////////////////////////////////////////////////////////////////////////////////////
 
   // tl <-> Core (fetch)
 //   gen_imem_host.io.reqIn <> core.io.imemReq
@@ -507,6 +506,9 @@ class GeneratorTL(programFile: Option[String], GPIO:Boolean = true, UART:Boolean
     val i2c_sda = Output(Bool())
     val i2c_scl = Output(Bool())
     val i2c_intr = Output(Bool())
+
+    val rx_i = Input(UInt(1.W))
+    val CLK_PER_BIT = Input(UInt(16.W))
   })
 
   io.spi_cs_n := DontCare
@@ -545,63 +547,8 @@ class GeneratorTL(programFile: Option[String], GPIO:Boolean = true, UART:Boolean
   gpio.io.cio_gpio_i := io.gpio_i
 //
 
-var slaves = Seq(gen_dmem_slave, gen_gpio_slave)
+  var slaves = Seq(gen_dmem_slave, gen_gpio_slave)
 
-// if (SPI & UART){
-//   implicit val spiConfig = Config()
-//   val spi = Module(new Spi(new TLRequest(), new TLResponse()))
-
-//   val gen_spi_slave = Module(new TilelinkDevice())
-//   val gen_uart_slave = Module(new TilelinkDevice())
-
-//   gen_spi_slave.io.reqOut <> spi.io.req
-//   gen_spi_slave.io.rspIn <> spi.io.rsp
-
-//   io.spi_cs_n := spi.io.cs_n
-//   io.spi_sclk := spi.io.sclk
-//   io.spi_mosi := spi.io.mosi
-//   spi.io.miso := io.spi_miso
-
-//   val uart = Module(new uart(new TLRequest(), new TLResponse()))
-
-//   gen_uart_slave.io.reqOut <> uart.io.request
-//   gen_uart_slave.io.rspIn <> uart.io.response
-
-//   uart.io.cio_uart_rx_i := io.cio_uart_rx_i
-//   io.cio_uart_tx_o := uart.io.cio_uart_tx_o
-//   io.cio_uart_intr_tx_o := uart.io.cio_uart_intr_tx_o  
-
-//   slaves = slaves ++ Seq(gen_spi_slave, gen_uart_slave)
-// }else if(UART){
-//   val uart = Module(new uart(new TLRequest(), new TLResponse()))
-
-//   val gen_uart_slave = Module(new TilelinkDevice())
-
-//   gen_uart_slave.io.reqOut <> uart.io.request
-//   gen_uart_slave.io.rspIn <> uart.io.response
-
-//   uart.io.cio_uart_rx_i := io.cio_uart_rx_i
-//   io.cio_uart_tx_o := uart.io.cio_uart_tx_o
-//   io.cio_uart_intr_tx_o := uart.io.cio_uart_intr_tx_o  
-
-//   slaves = Seq(gen_dmem_slave, gen_gpio_slave, gen_uart_slave)
-// }else if(SPI){
-//   implicit val spiConfig = Config()
-//   val spi = Module(new Spi(new TLRequest(), new TLResponse()))
-
-//    val gen_spi_slave = Module(new TilelinkDevice())
-
-//   gen_spi_slave.io.reqOut <> spi.io.req
-//   gen_spi_slave.io.rspIn <> spi.io.rsp
-
-//   io.spi_cs_n := spi.io.cs_n
-//   io.spi_sclk := spi.io.sclk
-//   io.spi_mosi := spi.io.mosi
-//   spi.io.miso := io.spi_miso
-
-//   // slaves = Seq(gen_dmem_slave, gen_gpio_slave, gen_spi_slave)
-//   slaves :+ gen_spi_slave
-// }
 
   if (SPI){
   implicit val spiConfig = Config()
@@ -697,9 +644,131 @@ if (I2C){
 
   val switch = Module(new Switch1toN(new TilelinkMaster(), new TilelinkSlave(), devices.size))
 
+  // PUART
+  val puart = Module(new PUart)
+  puart.io.rxd := io.rx_i
+  puart.io.CLK_PER_BIT := io.CLK_PER_BIT
+
+  core.io.stall :=  false.B
+  puart.io.isStalled   :=  false.B
+
+  val idle :: read_uart :: write_iccm :: prog_finish :: Nil = Enum(4)
+  val state = RegInit(idle)
+  val reset_reg = RegInit(true.B)
+  reset_reg := reset.asBool()
+  val rx_data_reg                   =       RegInit(0.U(32.W))
+  val rx_addr_reg                   =       RegInit(0.U(32.W))
+  val  state_check = RegInit(0.B)
+
+  when(state_check === 0.B){
+    gen_imem_host.io.reqIn.bits.addrRequest := 0.U
+    gen_imem_host.io.reqIn.bits.dataRequest := 0.U
+    gen_imem_host.io.reqIn.bits.activeByteLane := 0xffff.U
+    gen_imem_host.io.reqIn.bits.isWrite := 0.B
+    gen_imem_host.io.reqIn.valid := 0.B
+    gen_imem_host.io.rspOut.ready := true.B
+    when(state === idle){
+      // checking to see if the reset button was pressed previously and now it falls back to 0 for starting the read uart condition
+        when(reset_reg === true.B && reset.asBool() === false.B) {
+            state :=  read_uart
+        }.otherwise {
+            state := idle
+        }
+
+        // setting all we_i to be false, since nothing to be written
+        // instr_we.foreach(w => w := false.B)
+        gen_imem_host.io.reqIn.valid := false.B
+        //instr_we                       :=       false.B  // active high
+        // instr_addr                     :=       iccm_wb_device.io.addr_o
+        // instr_wdata                    :=       DontCare
+        core.io.stall :=  false.B
+        puart.io.isStalled   :=  false.B
+    }
+    .elsewhen(state === read_uart){
+        state_check := 0.B
+        // when valid 32 bits available the next state would be writing into the ICCM.
+        when(puart.io.valid) {
+            state                    :=       write_iccm
+
+        }.elsewhen(puart.io.done) {
+            // if getting done signal it means the read_uart state got a special ending instruction which means the
+            // program is finish and no need to write to the iccm so the next state would be prog_finish
+
+            state                  :=       prog_finish
+
+        }.otherwise {
+            // if not getting valid or done it means the 32 bits have not yet been read by the UART.
+            // so the next state would still be read_uart
+
+            state                  :=       read_uart
+        }
+
+        // setting all we_i to be false, since nothing to be written
+        // instr_we.foreach(w => w := false.B)
+        gen_imem_host.io.reqIn.valid := false.B
+        core.io.stall           :=       true.B
+        puart.io.isStalled              :=       true.B
+
+        // store data and addr in registers if uart_ctrl.valid is high to save it since going to next state i.e write_iccm
+        // will take one more cycle which may make the received data and addr invalid since by then another data and addr
+        // could be written inside it.
+
+        rx_data_reg                    :=       Mux(puart.io.valid, puart.io.rx_data_o, 0.U)
+        //    rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o << 2, 0.U)    // left shifting address by 2 since uart ctrl sends address in 0,1,2... format but we need it in word aligned so 1 translated to 4, 2 translates to 8 (dffram requirement)
+        rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o, 0.U)
+    }
+    .elsewhen(state === write_iccm){
+      // when writing to the iccm state checking if the uart received the ending instruction. If it does then
+      // the next state would be prog_finish and if it doesn't then we move to the read_uart state again to
+      // read the next instruction
+        when(puart.io.done) {
+
+            state                   :=       prog_finish
+
+        }.otherwise {
+
+            state                   :=       read_uart
+
+        }
+        // setting all we_i to be true, since instruction (32 bit) needs to be written
+        // instr_we.foreach(w => w := true.B)
+        gen_imem_host.io.reqIn.valid := true.B
+        gen_imem_host.io.reqIn.bits.addrRequest := rx_addr_reg
+        gen_imem_host.io.reqIn.bits.dataRequest := rx_data_reg
+        gen_imem_host.io.reqIn.bits.activeByteLane := 0xffff.U
+        gen_imem_host.io.reqIn.bits.isWrite := 1.B
+        // keep stalling the core
+        core.io.stall           :=       true.B
+        puart.io.isStalled         :=       true.B
+    }
+    .elsewhen(state === prog_finish){
+        // setting all we_i to be false, since nothing to be written
+        // instr_we.foreach(w => w := false.B)
+        gen_imem_host.io.reqIn.valid := false.B
+        //instr_we                       :=       true.B   // active low
+        // instr_wdata                    :=       DontCare
+        // instr_addr                     :=       iccm_wb_device.io.addr_o
+        core.io.stall       :=       false.B
+        puart.io.isStalled         :=       false.B
+        state                      :=       idle
+        state_check := 1.B
+    }
+
+    core.io.imemRsp.bits.dataResponse := 0.U
+    core.io.imemRsp.bits.error := 0.B
+    // core.io.imemRsp.bits.ackWrite := 0.B
+    core.io.imemRsp.valid := 0.B
+    core.io.imemReq.ready := true.B
+
+  }
+  .otherwise{
+        gen_imem_host.io.reqIn <> core.io.imemReq
+        core.io.imemRsp <> gen_imem_host.io.rspOut
+  }
+
   // tl <-> Core (fetch)
-  gen_imem_host.io.reqIn <> core.io.imemReq
-  core.io.imemRsp <> gen_imem_host.io.rspOut
+//   gen_imem_host.io.reqIn <> core.io.imemReq
+//   core.io.imemRsp <> gen_imem_host.io.rspOut
   gen_imem_slave.io.reqOut <> imem.io.req
   gen_imem_slave.io.rspIn <> imem.io.rsp
 
