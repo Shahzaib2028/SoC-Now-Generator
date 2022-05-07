@@ -22,6 +22,32 @@ jobs:
     - name: Make all SoC Combinations
       run: python3 soc_test.py all
     - name: Setup F4PGA/Symbiflow
-      run: ./f4pga_setup.sh
+      run: export INSTALL_DIR=~/newopt/f4pga && export FPGA_FAM=xc7
+    - name: Download conda installer
+      run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda_installer.sh
+    - name: Unload Conda Installer
+      run: bash conda_installer.sh -u -b -p $INSTALL_DIR/$FPGA_FAM/conda;
+    - name: Source Conda
+      run: source "$INSTALL_DIR/$FPGA_FAM/conda/etc/profile.d/conda.sh";
+    - name: Create Env Yml
+      run: conda env create -f $INSTALL_DIR/$FPGA_FAM/environment.yml
+    - name: Create Install Dir
+      run: mkdir -p $INSTALL_DIR/xc7/install
+    - name: Download F4PGA pkg 1
+      run: wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220406-185509/symbiflow-arch-defs-install-3ef4188.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+    - name: Download F4PGA pkg 2
+      run: wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220406-185509/symbiflow-arch-defs-xc7a50t_test-3ef4188.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+    - name: Download F4PGA pkg 3
+      run: wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220406-185509/symbiflow-arch-defs-xc7a100t_test-3ef4188.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+    - name: Download F4PGA pkg 4
+      run: wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220406-185509/symbiflow-arch-defs-xc7a200t_test-3ef4188.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+    - name: Download F4PGA pkg 5
+      run: wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/20220406-185509/symbiflow-arch-defs-xc7z010_test-3ef4188.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+    - name: Export F4PGA Path
+      run: export PATH="$INSTALL_DIR/$FPGA_FAM/install/bin:$PATH";
+    - name: Source Conda sh
+      run: source "$INSTALL_DIR/$FPGA_FAM/conda/etc/profile.d/conda.sh"
+    - name: Activate Conda XC7
+      run: conda activate $FPGA_FAM
     - name: Run Bitstream on all SoC Combinations
       run: ./bitstream_runner.sh
