@@ -308,8 +308,8 @@ if (I2C){
   slaves = slaves :+ gen_i2c_slave
 }
 
-//   val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
-  val imem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
+  val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
+  // val imem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   
   val wbErr = Module(new WishboneErr())
@@ -399,7 +399,7 @@ if (I2C){
 
         rx_data_reg                    :=       Mux(puart.io.valid, puart.io.rx_data_o, 0.U)
         //    rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o << 2, 0.U)    // left shifting address by 2 since uart ctrl sends address in 0,1,2... format but we need it in word aligned so 1 translated to 4, 2 translates to 8 (dffram requirement)
-        rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o, 0.U)
+        rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o << 2, 0.U)
     }
     .elsewhen(state === write_iccm){
       // when writing to the iccm state checking if the uart received the ending instruction. If it does then
@@ -715,7 +715,7 @@ if (I2C){
 
         rx_data_reg                    :=       Mux(puart.io.valid, puart.io.rx_data_o, 0.U)
         //    rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o << 2, 0.U)    // left shifting address by 2 since uart ctrl sends address in 0,1,2... format but we need it in word aligned so 1 translated to 4, 2 translates to 8 (dffram requirement)
-        rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o, 0.U)
+        rx_addr_reg                    :=       Mux(puart.io.valid, puart.io.addr_o << 2, 0.U)
     }
     .elsewhen(state === write_iccm){
       // when writing to the iccm state checking if the uart received the ending instruction. If it does then
