@@ -3,11 +3,7 @@
 
 name: Automated Bitstream Gen Tester
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: workflow_dispatch
 
 permissions:
   contents: write
