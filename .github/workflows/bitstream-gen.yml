@@ -22,7 +22,7 @@ jobs:
     - name: Make all SoC Combinations
       run: python3 soc_test.py all
     - name: Setup F4PGA/Symbiflow
-      run: export INSTALL_DIR=~/newopt/f4pga && export FPGA_FAM=xc7
+      run: export INSTALL_DIR=$(pwd)/newopt/f4pga && export FPGA_FAM=xc7
     - name: Download conda installer
       run: wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda_installer.sh
     - name: Unload Conda Installer
