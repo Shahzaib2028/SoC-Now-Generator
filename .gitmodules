@@ -7,3 +7,6 @@
 [submodule "cachefy"]
 	path = cachefy
 	url = https://github.com/merledu/cachefy
+[submodule "caravan"]
+	path = caravan
+	url = https://github.com/shahzaibk23/caravan
