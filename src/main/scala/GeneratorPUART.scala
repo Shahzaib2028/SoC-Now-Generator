@@ -308,7 +308,7 @@ if (I2C){
   slaves = slaves :+ gen_i2c_slave
 }
 
-  val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
+  val imem = Module(BlockRam.createNonMaskableRAM(None, bus=config, rows=1024))
   // val imem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   
@@ -342,9 +342,9 @@ if (I2C){
   reset_reg := reset.asBool()
   val rx_data_reg                   =       RegInit(0.U(32.W))
   val rx_addr_reg                   =       RegInit(0.U(32.W))
-  val  state_check = RegInit(0.B)
+  // val  state_check = RegInit(0.B)
 
-  when(state_check === 0.B){
+  when(~puart.io.done){
     gen_imem_host.io.reqIn.bits.addrRequest := 0.U
     gen_imem_host.io.reqIn.bits.dataRequest := 0.U
     gen_imem_host.io.reqIn.bits.activeByteLane := 0xffff.U
@@ -369,7 +369,7 @@ if (I2C){
         puart.io.isStalled   :=  false.B
     }
     .elsewhen(state === read_uart){
-        state_check := 0.B
+        // state_check := 0.B
         // when valid 32 bits available the next state would be writing into the ICCM.
         when(puart.io.valid) {
             state                    :=       write_iccm
@@ -435,7 +435,7 @@ if (I2C){
         core.io.stall       :=       false.B
         puart.io.isStalled         :=       false.B
         state                      :=       idle
-        state_check := 1.B
+        // state_check := 1.B
     }
 
     core.io.imemRsp.bits.dataResponse := 0.U
@@ -660,7 +660,7 @@ if (I2C){
   val rx_addr_reg                   =       RegInit(0.U(32.W))
   val  state_check = RegInit(0.B)
 
-  when(state_check === 0.B){
+  when(~puart.io.done){
     gen_imem_host.io.reqIn.bits.addrRequest := 0.U
     gen_imem_host.io.reqIn.bits.dataRequest := 0.U
     gen_imem_host.io.reqIn.bits.activeByteLane := 0xffff.U
