@@ -3,7 +3,7 @@ import chisel3._
 import nucleusrv.components.Core
 import caravan.bus.common.{AddressMap, BusDecoder, Switch1toN, Peripherals}
 
-import caravan.bus.tilelink.{TLRequest, TLResponse, TilelinkConfig, TilelinkDevice, TilelinkErr, TilelinkHost, TilelinkMaster, TilelinkSlave, TilelinkCDevice}
+import caravan.bus.tilelink.{TLRequest, TLResponse, TilelinkConfig, TilelinkDevice, TilelinkError, TilelinkHost, TilelinkMaster, TilelinkSlave, TilelinkCDevice}
 import caravan.bus.wishbone.{WBRequest, WBResponse, WishboneConfig, WishboneDevice, WishboneHost, WishboneMaster, WishboneSlave}
 import caravan.bus.wishbone.{WishboneErr}
 import chisel3.experimental.Analog
@@ -567,7 +567,7 @@ if (I2C){
   val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
   val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   
-  val tlErr = Module(new TilelinkErr())
+  val tlErr = Module(new TilelinkError())
   val core = Module(new Core(new TLRequest, new TLResponse)(M = M))
 
 
@@ -760,7 +760,7 @@ if (I2C){
   val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
   val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
   
-  val tlErr = Module(new TilelinkErr())
+  val tlErr = Module(new TilelinkError())
   val core = Module(new Core(new TLRequest, new TLResponse)(M = M))
 
 
