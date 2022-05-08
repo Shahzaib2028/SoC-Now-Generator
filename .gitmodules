@@ -7,3 +7,6 @@
 [submodule "jigsaw"]
 	path = jigsaw
 	url = https://github.com/shahzaibk23/jigsaw
+[submodule "cachefy"]
+	path = cachefy
+	url = https://github.com/merledu/cachefy
