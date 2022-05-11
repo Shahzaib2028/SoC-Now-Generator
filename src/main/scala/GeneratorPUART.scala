@@ -367,7 +367,7 @@ if (I2C){
         //instr_we                       :=       false.B  // active high
         // instr_addr                     :=       iccm_wb_device.io.addr_o
         // instr_wdata                    :=       DontCare
-        core.io.stall :=  false.B
+        core.io.stall :=  true.B
         puart.io.isStalled   :=  false.B
     }
     .elsewhen(state === read_uart){
