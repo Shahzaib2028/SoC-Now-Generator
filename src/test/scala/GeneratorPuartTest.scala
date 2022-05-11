@@ -29,7 +29,7 @@ class GeneratorPuartTest extends FreeSpec with ChiselScalatestTester {
   }
   "P U A R T" in {
     val programFile = getFile
-    test(new GeneratorPuart.Generator(programFile=programFile, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m")))/*.withAnnotations(Seq(VerilatorBackendAnnotation))*/ {c =>
+    test(new GeneratorPuart.Generator(programFile=programFile, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m"))).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
     c.io.CLK_PER_BIT.poke(4.U)
 
 
@@ -43,7 +43,7 @@ class GeneratorPuartTest extends FreeSpec with ChiselScalatestTester {
 
     c.clock.step(10)
 
-//   val insts = Array(0x400007B7,0x400007B7, 0x00078793,0x00800413,0x0087A223,0x0047A283, 0x00000fff)
+  // val instss = Array(0x00400293, 0x00400313, 0x006283B3, 0x00000fff)
     for (inst <- insts) {
         // val inst = 0xf0f0f0f0
         val half_byte1 = inst & 0x0f // 3
@@ -91,7 +91,7 @@ class GeneratorPuartTest extends FreeSpec with ChiselScalatestTester {
         }
       c.clock.step(200)
       c.clock.setTimeout(0)
-      c.clock.step(1000)
+      c.clock.step(100)
     }
   }
 }

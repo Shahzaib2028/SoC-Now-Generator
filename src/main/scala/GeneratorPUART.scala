@@ -19,7 +19,7 @@ import jigsaw.peripherals.UART._
 import jigsaw.peripherals.timer._
 import jigsaw.peripherals.i2c._
 import jigsaw.peripherals.programmable_uart._
-
+import jigsaw.rams.sram._
 
 
 class SoCNow(programFile: Option[String], GPIO:Boolean = true, UART:Boolean = false, SPI:Boolean = false, TIMER:Boolean = false, I2C:Boolean = false, TL:Boolean = true, WB:Boolean = false, M:Boolean = false) extends Module {
@@ -308,9 +308,11 @@ if (I2C){
   slaves = slaves :+ gen_i2c_slave
 }
 
-  val imem = Module(BlockRam.createNonMaskableRAM(None, bus=config, rows=1024))
+  // val imem = Module(BlockRam.createNonMaskableRAM(None, bus=config, rows=1024))
   // val imem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
-  val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
+  // val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
+  val imem = Module(new SRAM1kb(new WBRequest, new WBResponse))
+  val dmem = Module(new SRAM1kb(new WBRequest, new WBResponse))
   
   val wbErr = Module(new WishboneErr())
   val core = Module(new Core(new WBRequest, new WBResponse)(M = M))
@@ -625,8 +627,10 @@ if (I2C){
   println("-----------------SPI" , SPI)
 
 
-  val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
-  val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
+  // val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
+  // val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
+  val imem = Module(new SRAM1kb(new TLRequest, new TLResponse))
+  val dmem = Module(new SRAM1kb(new TLRequest, new TLResponse))
   
   val tlErr = Module(new TilelinkErr())
   val core = Module(new Core(new TLRequest, new TLResponse)(M = M))
