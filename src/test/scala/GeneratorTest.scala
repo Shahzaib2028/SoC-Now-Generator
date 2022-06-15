@@ -17,8 +17,16 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
   val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
 
   val fileToJson = file.parseJson.convertTo[Map[String, JsValue]]
-  val config = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
-  println(config)
+  val oneZero = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
+
+  val baseAddr = BaseAddr()
+  val mask     = Mask()
+
+  val configs:Map[Any, Map[Any,Any]] = Map("DCCM" -> Map("id" -> 0, "is" -> true           , "baseAddr" -> baseAddr.DCCM, "mask" -> mask.DCCM),
+                                           "GPIO" -> Map("id" -> 1, "is" -> oneZero("gpio"), "baseAddr" -> baseAddr.GPIO, "mask" -> mask.GPIO),
+                                           "M"    -> Map("is" -> oneZero("m")),
+                                           "TL"   -> Map("is" -> oneZero("tl")),
+                                           "WB"   -> Map("is" -> oneZero("wb")))
 
   def getFile: Option[String] = {
     if (scalaTestContext.value.get.configMap.contains("memFile")) {
@@ -27,9 +35,10 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
       None
     }
   }
+
   "Generator Test" in {
     val programFile = getFile
-    test(new Generator(programFile=programFile, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m"), TLC=config("tlc"))).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
+    test(new GeneratorWB(programFile=programFile, configs)).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
       c.clock.setTimeout(0)
       c.clock.step(1000)
     }

@@ -1,11 +1,11 @@
 case class BaseAddr(
     DCCM            : String = "h40000000",
-    GPIO            : String = "h40000000",
-    SPI             : String = "h40000000",
-    UART            : String = "h40000000",
-    SPIF            : String = "h40000000",
-    I2C             : String = "h40000000",
-    TIMER           : String = "h40000000"
+    GPIO            : String = "h40001000",
+    SPI             : String = "h40002000",
+    UART            : String = "h40003000",
+    SPIF            : String = "h40004000",
+    I2C             : String = "h40005000",
+    TIMER           : String = "h40006000"
 )
 
 case class Mask(
