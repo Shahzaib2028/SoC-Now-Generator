@@ -17,8 +17,87 @@ import jigsaw.peripherals.timer._
 import jigsaw.peripherals.i2c._
 import ccache.caches.DMCache
 
+class SoCNow(programFile: Option[String],
+                 configs:Map[Any, Map[Any, Any]]) extends Module {
+
+    val n = configs("GPIO")("n").asInstanceOf[Int]
+
+    val io = IO(new Bundle {
+        val gpio_io = Vec(n, Analog(1.W))
+
+        val spi_flash_cs_n = Output(Bool())
+        val spi_flash_sclk = Output(Bool())
+        val spi_flash_mosi = Output(Bool())
+        val spi_flash_miso = Input(Bool())
+
+        val spi_cs_n = Output(Bool())
+        val spi_sclk = Output(Bool())
+        val spi_mosi = Output(Bool())
+        val spi_miso = Input(Bool())
+
+
+        val cio_uart_rx_i = Input(Bool())
+        val cio_uart_tx_o = Output(Bool())
+        val cio_uart_intr_tx_o = Output(Bool())
+
+        val timer_intr_cmp = Output(Bool())
+        val timer_intr_ovf = Output(Bool())
+
+        val i2c_sda = Output(Bool())
+        val i2c_scl = Output(Bool())
+        val i2c_intr = Output(Bool())
+        val i2c_sda_in = Input(Bool())
+      })
+
+    val gen = Module(new Generator(programFile, configs))
+    val pll = Module(new PLL_8MHz())
+
+    pll.io.clk_in1 := clock
+    gen.clock := pll.io.clk_out1
+
+    val gpioInputWires = Wire(Vec(n, Bool()))
+    val gpioOutputWires = Wire(Vec(n, Bool()))
+    val gpioEnableWires = Wire(Vec(n, Bool()))
+
+    val gpioPads = TriStateBuffer(quantity=n)
+    val triStateBufferWires = for {
+      ((((a,b),c),d),e) <- gpioPads zip gpioInputWires zip gpioOutputWires zip gpioEnableWires zip io.gpio_io
+    } yield (a,b,c,d,e)
+
+    triStateBufferWires map { case(buf: IOBUF, in: Bool, out: Bool, en: Bool, io: Analog) => {
+      buf.io.connect(in, out, io, en)
+    }}
+
+    gen.io.gpio_i := gpioInputWires.asUInt()
+    gpioOutputWires := gen.io.gpio_o.asBools()
+    gpioEnableWires := gen.io.gpio_en_o.asBools()
+
+    io.spi_flash_cs_n := gen.io.spi_flash_cs_n
+    io.spi_flash_sclk := gen.io.spi_flash_sclk
+    io.spi_flash_mosi := gen.io.spi_flash_mosi
+    gen.io.spi_flash_miso := io.spi_flash_miso
+
+    io.spi_cs_n := gen.io.spi_cs_n
+    io.spi_sclk := gen.io.spi_sclk
+    io.spi_mosi := gen.io.spi_mosi
+    gen.io.spi_miso := io.spi_miso
+
+    io.cio_uart_intr_tx_o := gen.io.cio_uart_intr_tx_o
+    io.cio_uart_tx_o := gen.io.cio_uart_tx_o
+    gen.io.cio_uart_rx_i := io.cio_uart_rx_i
+
+    io.timer_intr_cmp := gen.io.timer_intr_cmp
+    io.timer_intr_ovf := gen.io.timer_intr_ovf
+
+    io.i2c_sda := gen.io.i2c_sda
+    io.i2c_scl := gen.io.i2c_scl
+    io.i2c_intr := gen.io.i2c_intr
+    gen.io.i2c_sda_in := io.i2c_sda_in
+}
+
 class Generator(programFile: Option[String],
                  configs:Map[Any, Map[Any, Any]]) extends Module {
+  val n = configs("GPIO")("n").asInstanceOf[Int]
   val io = IO(new Bundle {
     val spi_flash_cs_n = Output(Bool())
     val spi_flash_sclk = Output(Bool())
@@ -34,9 +113,9 @@ class Generator(programFile: Option[String],
     val cio_uart_tx_o = Output(Bool())
     val cio_uart_intr_tx_o = Output(Bool())
 
-    val gpio_o = Output(UInt(4.W))
-    val gpio_en_o = Output(UInt(4.W))
-    val gpio_i = Input(UInt(4.W))
+    val gpio_o = Output(UInt(n.W))
+    val gpio_en_o = Output(UInt(n.W))
+    val gpio_i = Input(UInt(n.W))
 
     val timer_intr_cmp = Output(Bool())
     val timer_intr_ovf = Output(Bool())
@@ -735,7 +814,33 @@ object GeneratorDriver extends App {
                                            "I2C"  -> Map("id" -> 6, "is" -> oneZero("i2c") , "baseAddr" -> baseAddr.I2C , "mask" -> mask.I2C ),
                                            "M"    -> Map("is" -> oneZero("m")),
                                            "TL"   -> Map("is" -> oneZero("tl")),
-                                           "WB"   -> Map("is" -> oneZero("wb")))
+                                           "WB"   -> Map("is" -> oneZero("wb")),
+                                           "TLC"   -> Map("is" -> oneZero("tlc")))
 
   (new ChiselStage).emitVerilog(new Generator(programFile=None, configs))
+}
+
+object SoCNowDriver extends App {
+
+  val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
+
+  val fileToJson = file.parseJson.convertTo[Map[String, JsValue]]
+  val oneZero = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
+
+  val baseAddr = BaseAddr()
+  val mask     = Mask()
+
+  val configs:Map[Any, Map[Any,Any]] = Map("DCCM" -> Map("id" -> 0, "is" -> true           , "baseAddr" -> baseAddr.DCCM, "mask" -> mask.DCCM),
+                                           "GPIO" -> Map("id" -> 1, "is" -> oneZero("gpio"), "baseAddr" -> baseAddr.GPIO, "mask" -> mask.GPIO, "n" -> 4),
+                                           "SPI"  -> Map("id" -> 2, "is" -> oneZero("spi") , "baseAddr" -> baseAddr.SPI , "mask" -> mask.SPI ),
+                                           "UART" -> Map("id" -> 3, "is" -> oneZero("uart"), "baseAddr" -> baseAddr.UART, "mask" -> mask.UART),
+                                           "TIMER"-> Map("id" -> 4, "is"-> oneZero("timer"), "baseAddr"-> baseAddr.TIMER, "mask"-> mask.TIMER),
+                                           "SPIF" -> Map("id" -> 5, "is" -> oneZero("spi_flash"), "baseAddr" -> baseAddr.SPIF, "mask" -> mask.SPIF),
+                                           "I2C"  -> Map("id" -> 6, "is" -> oneZero("i2c") , "baseAddr" -> baseAddr.I2C , "mask" -> mask.I2C ),
+                                           "M"    -> Map("is" -> oneZero("m")),
+                                           "TL"   -> Map("is" -> oneZero("tl")),
+                                           "WB"   -> Map("is" -> oneZero("wb")),
+                                           "TLC"   -> Map("is" -> oneZero("tlc")))
+
+  (new ChiselStage).emitVerilog(new SoCNow(programFile=None, configs))
 }
