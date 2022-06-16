@@ -840,7 +840,7 @@ object SoCNowDriver extends App {
                                            "M"    -> Map("is" -> oneZero("m")),
                                            "TL"   -> Map("is" -> oneZero("tl")),
                                            "WB"   -> Map("is" -> oneZero("wb")),
-                                           "TLC"   -> Map("is" -> oneZero("tlc")))
+                                           "TLC"  -> Map("is" -> oneZero("tlc")))
 
   (new ChiselStage).emitVerilog(new SoCNow(programFile=None, configs))
 }
