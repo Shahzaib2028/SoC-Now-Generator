@@ -43,7 +43,7 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
 
   "Generator Test" in {
     val programFile = getFile
-    test(new GeneratorWB(programFile=programFile, configs)).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
+    test(new GeneratorTLC(programFile=programFile, configs)).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
       c.clock.setTimeout(0)
       c.clock.step(1000)
     }
