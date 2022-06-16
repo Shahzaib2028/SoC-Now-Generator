@@ -202,21 +202,21 @@ class GeneratorWB(programFile: Option[String],
 
     addressMap.addDevice(Peripherals.all(configs("SPIF")("id").asInstanceOf[Int]), configs("SPIF")("baseAddr").asInstanceOf[String].U(32.W), configs("SPIF")("mask").asInstanceOf[String].U(32.W), gen_spi_flash_slave)
   }
-  // if (configs("I2C")("is").asInstanceOf[Boolean]){
-  //   val i2c = Module(new i2c(new WBRequest(), new WBResponse()))
-  //   val gen_i2c_slave = Module(new WishboneDevice())
+  if (configs("I2C")("is").asInstanceOf[Boolean]){
+    val i2c = Module(new i2c(new WBRequest(), new WBResponse()))
+    val gen_i2c_slave = Module(new WishboneDevice())
 
-  //   gen_i2c_slave.io.reqOut <> i2c.io.request
-  //   gen_i2c_slave.io.rspIn <> i2c.io.response 
+    gen_i2c_slave.io.reqOut <> i2c.io.request
+    gen_i2c_slave.io.rspIn <> i2c.io.response 
 
-  //   i2c.io.cio_i2c_sda_in := io.i2c_sda_in
-  //   io.i2c_sda := i2c.io.cio_i2c_sda
-  //   io.i2c_scl := i2c.io.cio_i2c_scl
-  //   io.i2c_intr := i2c.io.cio_i2c_intr
+    i2c.io.cio_i2c_sda_in := io.i2c_sda_in
+    io.i2c_sda := i2c.io.cio_i2c_sda
+    io.i2c_scl := i2c.io.cio_i2c_scl
+    io.i2c_intr := i2c.io.cio_i2c_intr
 
-  //   addressMap.addDevice(Peripherals.all(configs("I2C")("id").asInstanceOf[Int]), configs("I2C")("baseAddr").asInstanceOf[String].U(32.W), configs("I2C")("mask").asInstanceOf[String].U(32.W), gen_i2c_slave)
+    addressMap.addDevice(Peripherals.all(configs("I2C")("id").asInstanceOf[Int]), configs("I2C")("baseAddr").asInstanceOf[String].U(32.W), configs("I2C")("mask").asInstanceOf[String].U(32.W), gen_i2c_slave)
 
-  // }
+  }
 
   val imem = Module(BlockRam.createNonMaskableRAM(programFile, bus=config, rows=1024))
   val dmem = Module(BlockRam.createMaskableRAM(bus=config, rows=1024))
