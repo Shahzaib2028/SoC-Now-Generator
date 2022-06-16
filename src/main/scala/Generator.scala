@@ -17,56 +17,131 @@ import jigsaw.peripherals.timer._
 import jigsaw.peripherals.i2c._
 import ccache.caches.DMCache
 
-// class Generator(programFile: Option[String],
-//                  configs:Map[Any, Map[Any, Any]]) extends Module {
-//   val io = IO(new Bundle {
-//       val spi_cs_n = Output(Bool())
-//       val spi_sclk = Output(Bool())
-//       val spi_mosi = Output(Bool())
-//       val spi_miso = Input(Bool())
+class Generator(programFile: Option[String],
+                 configs:Map[Any, Map[Any, Any]]) extends Module {
+  val io = IO(new Bundle {
+    val spi_flash_cs_n = Output(Bool())
+    val spi_flash_sclk = Output(Bool())
+    val spi_flash_mosi = Output(Bool())
+    val spi_flash_miso = Input(Bool())
 
-//       val cio_uart_rx_i = Input(Bool())
-//       val cio_uart_tx_o = Output(Bool())
-//       val cio_uart_intr_tx_o = Output(Bool())
+    val spi_cs_n = Output(Bool())
+    val spi_sclk = Output(Bool())
+    val spi_mosi = Output(Bool())
+    val spi_miso = Input(Bool())
 
-//       val gpio_o = Output(UInt(4.W))
-//       val gpio_en_o = Output(UInt(4.W))
-//       val gpio_i = Input(UInt(4.W))
+    val cio_uart_rx_i = Input(Bool())
+    val cio_uart_tx_o = Output(Bool())
+    val cio_uart_intr_tx_o = Output(Bool())
 
-//       val timer_intr_cmp = Output(Bool())
-//       val timer_intr_ovf = Output(Bool())
+    val gpio_o = Output(UInt(4.W))
+    val gpio_en_o = Output(UInt(4.W))
+    val gpio_i = Input(UInt(4.W))
 
-//       val i2c_sda = Output(Bool())
-//       val i2c_scl = Output(Bool())
-//       val i2c_intr = Output(Bool())
-//     })
+    val timer_intr_cmp = Output(Bool())
+    val timer_intr_ovf = Output(Bool())
+
+    val i2c_sda_in = Input(Bool())
+    val i2c_sda = Output(Bool())
+    val i2c_scl = Output(Bool())
+    val i2c_intr = Output(Bool())
+    })
 
 
-//     if (configs("WB")("is").asInstanceOf[Boolean]){
-//       val genWB = Module(new GeneratorWB(programFile = programFile, configs = configs)
+    if (configs("WB")("is").asInstanceOf[Boolean]){
+      
+      val genWB = Module(new GeneratorWB(programFile=programFile, configs))
 
-//       io.spi_cs_n := genWB.io.spi_cs_n
-//       io.spi_sclk := genWB.io.spi_sclk
-//       io.spi_mosi := genWB.io.spi_mosi
-//       genWB.io.spi_miso := io.spi_miso
+      io.spi_flash_cs_n := genWB.io.spi_flash_cs_n
+      io.spi_flash_sclk := genWB.io.spi_flash_sclk
+      io.spi_flash_mosi := genWB.io.spi_flash_mosi
+      genWB.io.spi_flash_miso := io.spi_flash_miso
 
-//       io.cio_uart_tx_o := genWB.io.cio_uart_tx_o
-//       io.cio_uart_intr_tx_o := genWB.io.cio_uart_intr_tx_o
-//       genWB.io.cio_uart_rx_i := io.cio_uart_rx_i 
+      io.spi_cs_n := genWB.io.spi_cs_n
+      io.spi_sclk := genWB.io.spi_sclk
+      io.spi_mosi := genWB.io.spi_mosi
+      genWB.io.spi_miso := io.spi_miso
 
-//       io.gpio_o := genWB.io.gpio_o
-//       io.gpio_en_o := genWB.io.gpio_en_o
-//       genWB.io.gpio_i := io.gpio_i
+      io.cio_uart_tx_o := genWB.io.cio_uart_tx_o
+      io.cio_uart_intr_tx_o := genWB.io.cio_uart_intr_tx_o
+      genWB.io.cio_uart_rx_i := io.cio_uart_rx_i 
 
-//       io.timer_intr_cmp := genWB.io.timer_intr_cmp
-//       io.timer_intr_ovf := genWB.io.timer_intr_ovf
+      io.gpio_o := genWB.io.gpio_o
+      io.gpio_en_o := genWB.io.gpio_en_o
+      genWB.io.gpio_i := io.gpio_i
 
-//       io.i2c_sda := genWB.io.i2c_sda
-//       io.i2c_scl := genWB.io.i2c_scl
-//       io.i2c_intr := genWB.io.i2c_intr
+      io.timer_intr_cmp := genWB.io.timer_intr_cmp
+      io.timer_intr_ovf := genWB.io.timer_intr_ovf
 
-//     }
-// }
+      io.i2c_sda := genWB.io.i2c_sda
+      io.i2c_scl := genWB.io.i2c_scl
+      io.i2c_intr := genWB.io.i2c_intr
+      genWB.io.i2c_sda_in := io.i2c_sda_in 
+
+    }
+    else if (configs("TL")("is").asInstanceOf[Boolean]){
+      
+      val genTL = Module(new GeneratorTL(programFile=programFile, configs))
+
+      io.spi_flash_cs_n := genTL.io.spi_flash_cs_n
+      io.spi_flash_sclk := genTL.io.spi_flash_sclk
+      io.spi_flash_mosi := genTL.io.spi_flash_mosi
+      genTL.io.spi_flash_miso := io.spi_flash_miso
+
+      io.spi_cs_n := genTL.io.spi_cs_n
+      io.spi_sclk := genTL.io.spi_sclk
+      io.spi_mosi := genTL.io.spi_mosi
+      genTL.io.spi_miso := io.spi_miso
+
+      io.cio_uart_tx_o := genTL.io.cio_uart_tx_o
+      io.cio_uart_intr_tx_o := genTL.io.cio_uart_intr_tx_o
+      genTL.io.cio_uart_rx_i := io.cio_uart_rx_i 
+
+      io.gpio_o := genTL.io.gpio_o
+      io.gpio_en_o := genTL.io.gpio_en_o
+      genTL.io.gpio_i := io.gpio_i
+
+      io.timer_intr_cmp := genTL.io.timer_intr_cmp
+      io.timer_intr_ovf := genTL.io.timer_intr_ovf
+
+      io.i2c_sda := genTL.io.i2c_sda
+      io.i2c_scl := genTL.io.i2c_scl
+      io.i2c_intr := genTL.io.i2c_intr
+      genTL.io.i2c_sda_in := io.i2c_sda_in 
+
+    }
+    else if (configs("TLC")("is").asInstanceOf[Boolean]){
+      
+      val genTLC = Module(new GeneratorTLC(programFile=programFile, configs))
+
+      io.spi_flash_cs_n := genTLC.io.spi_flash_cs_n
+      io.spi_flash_sclk := genTLC.io.spi_flash_sclk
+      io.spi_flash_mosi := genTLC.io.spi_flash_mosi
+      genTLC.io.spi_flash_miso := io.spi_flash_miso
+
+      io.spi_cs_n := genTLC.io.spi_cs_n
+      io.spi_sclk := genTLC.io.spi_sclk
+      io.spi_mosi := genTLC.io.spi_mosi
+      genTLC.io.spi_miso := io.spi_miso
+
+      io.cio_uart_tx_o := genTLC.io.cio_uart_tx_o
+      io.cio_uart_intr_tx_o := genTLC.io.cio_uart_intr_tx_o
+      genTLC.io.cio_uart_rx_i := io.cio_uart_rx_i 
+
+      io.gpio_o := genTLC.io.gpio_o
+      io.gpio_en_o := genTLC.io.gpio_en_o
+      genTLC.io.gpio_i := io.gpio_i
+
+      io.timer_intr_cmp := genTLC.io.timer_intr_cmp
+      io.timer_intr_ovf := genTLC.io.timer_intr_ovf
+
+      io.i2c_sda := genTLC.io.i2c_sda
+      io.i2c_scl := genTLC.io.i2c_scl
+      io.i2c_intr := genTLC.io.i2c_intr
+      genTLC.io.i2c_sda_in := io.i2c_sda_in 
+
+    }
+}
 
 class GeneratorWB(programFile: Option[String],
                  configs:Map[Any, Map[Any, Any]]) extends Module {
@@ -662,5 +737,5 @@ object GeneratorDriver extends App {
                                            "TL"   -> Map("is" -> oneZero("tl")),
                                            "WB"   -> Map("is" -> oneZero("wb")))
 
-  (new ChiselStage).emitVerilog(new GeneratorTLC(programFile=None, configs))
+  (new ChiselStage).emitVerilog(new Generator(programFile=None, configs))
 }
