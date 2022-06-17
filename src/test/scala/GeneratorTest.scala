@@ -31,7 +31,8 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
                                            "I2C"  -> Map("id" -> 6, "is" -> oneZero("i2c") , "baseAddr" -> baseAddr.I2C , "mask" -> mask.I2C ),
                                            "M"    -> Map("is" -> oneZero("m")),
                                            "TL"   -> Map("is" -> oneZero("tl")),
-                                           "WB"   -> Map("is" -> oneZero("wb")))
+                                           "WB"   -> Map("is" -> oneZero("wb")),
+                                           "TLC"  -> Map("is" -> oneZero("tlc")))
 
   def getFile: Option[String] = {
     if (scalaTestContext.value.get.configMap.contains("memFile")) {
