@@ -17,8 +17,23 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
   val file = scala.io.Source.fromFile((os.pwd.toString)+"//src//main//scala//config.json").mkString
 
   val fileToJson = file.parseJson.convertTo[Map[String, JsValue]]
-  val config = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
-  println(config)
+  val oneZero = fileToJson.map({case (a,b) => a -> {if (b == JsNumber(1)) true else false}})
+
+  val baseAddr = BaseAddr()
+  val mask     = Mask()
+  val ids      = PeripheralFactory.idCount()
+
+  val configs:Map[Any, Map[Any,Any]] = Map("DCCM" -> Map("id" -> ids("DCCM"), "is" -> true           , "baseAddr" -> baseAddr.DCCM, "mask" -> mask.DCCM),
+                                           "GPIO" -> Map("id" -> ids("GPIO"), "is" -> oneZero("gpio"), "baseAddr" -> baseAddr.GPIO, "mask" -> mask.GPIO, "n" -> 4),
+                                           "SPI"  -> Map("id" -> ids("SPI"), "is" -> oneZero("spi") , "baseAddr" -> baseAddr.SPI , "mask" -> mask.SPI ),
+                                           "UART" -> Map("id" -> ids("UART"), "is" -> oneZero("uart"), "baseAddr" -> baseAddr.UART, "mask" -> mask.UART),
+                                           "TIMER"-> Map("id" -> ids("TIMER"), "is"-> oneZero("timer"), "baseAddr"-> baseAddr.TIMER, "mask"-> mask.TIMER),
+                                           "SPIF" -> Map("id" -> ids("SPIF"), "is" -> oneZero("spi_flash"), "baseAddr" -> baseAddr.SPIF, "mask" -> mask.SPIF),
+                                           "I2C"  -> Map("id" -> ids("I2C"), "is" -> oneZero("i2c") , "baseAddr" -> baseAddr.I2C , "mask" -> mask.I2C ),
+                                           "M"    -> Map("is" -> oneZero("m")),
+                                           "TL"   -> Map("is" -> oneZero("tl")),
+                                           "WB"   -> Map("is" -> oneZero("wb")),
+                                           "TLC"   -> Map("is" -> oneZero("tlc")))
 
   def getFile: Option[String] = {
     if (scalaTestContext.value.get.configMap.contains("memFile")) {
@@ -27,9 +42,10 @@ class GeneratorTest extends FreeSpec with ChiselScalatestTester {
       None
     }
   }
+
   "Generator Test" in {
     val programFile = getFile
-    test(new Generator(programFile=programFile, GPIO = config("gpio"), UART = config("uart"), SPI = config("spi_flash"), TIMER = config("timer"), I2C = config("i2c"), TL = config("tl"), WB = config("wb"), M = config("m"), TLC=config("tlc"))).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
+    test(new Generator(programFile=programFile, configs)).withAnnotations(Seq(VerilatorBackendAnnotation)) {c =>
       c.clock.setTimeout(0)
       c.clock.step(1000)
     }

@@ -27,11 +27,11 @@ if data["gpio"] == 1:
 	main_str += gpio
 	dev_count += 1
 
-if data["spi_flash"] == 1:
-	spi_f = f"""
+if data["spi"] == 1:
+	spi = f"""
 		val SPI  = Value({dev_count}.U)
 	"""
-	main_str += spi_f
+	main_str += spi
 	dev_count += 1
 
 if data["uart"] == 1:
@@ -46,6 +46,13 @@ if data["timer"] == 1:
 		val TIMER = Value({dev_count}.U)
 	"""
 	main_str += timer
+	dev_count += 1
+
+if data["spi_flash"] == 1:
+	spi_f = f"""
+		val SPIFLASH  = Value({dev_count}.U)
+	"""
+	main_str += spi_f
 	dev_count += 1
 
 if data["i2c"] == 1:

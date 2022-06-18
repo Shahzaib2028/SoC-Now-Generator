@@ -1,12 +1,13 @@
 [submodule "nucleusrv"]
 	path = nucleusrv
 	url = https://github.com/merledu/nucleusrv
-[submodule "jigsaw"]
-	path = jigsaw
-	url = https://github.com/shahzaibk23/jigsaw
 [submodule "cachefy"]
 	path = cachefy
 	url = https://github.com/merledu/cachefy
 [submodule "caravan"]
 	path = caravan
 	url = https://github.com/shahzaibk23/caravan
+[submodule "jigsaw"]
+	path = jigsaw
+	url = https://github.com/talha-ahmed-1/jigsaw
+	branch = independent
